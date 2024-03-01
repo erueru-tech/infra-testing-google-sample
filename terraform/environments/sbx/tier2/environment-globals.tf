@@ -1,0 +1,1 @@
+../../../environment-globals.tf

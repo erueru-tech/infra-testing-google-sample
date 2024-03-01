@@ -1,0 +1,32 @@
+# ref. https://pre-commit.com/#plugins
+
+fail_fast: true
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+
+  - repo: local
+    hooks:
+      - id: terraform-fmt
+        name: run terraform fmt
+        entry: |
+          cd terraform
+          terraform fmt -recursive
+        language: system
+        files: (\.tf|\.tfvars|\.hcl)$
+        exclude: \.terraform\/.*$
+
+  - repo: local
+    hooks:
+      - id: tflint
+        name: run tflint
+        entry: ./scripts/tflint.sh
+        language: system
+        files: (\.tf|\.tfvars|\.hcl)$
+        exclude: \.terraform\/.*$
