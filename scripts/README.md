@@ -20,9 +20,9 @@
 
 ### 事前準備
 
-**1\.** Google Cloud の組織を作成
+**1\.** Google Cloud の組織を作成。
 
-**2\.** 組織に所属する Google Cloud プロジェクトを GCP コンソールから作成
+**2\.** 組織に所属する Google Cloud プロジェクトを GCP コンソールから作成。
 
 なおプロジェクト名は `$SERVICE + "-" + $ENV` のルールで作成する。
 
@@ -32,15 +32,15 @@
 
 ちなみに Google Cloud のプロジェクトの文字数上限は 30 文字までとなっており、`infra-testing-google-sample-sbx-e`はオーバーしているがあくまでサンプルとして捉える。
 
-**3\.** 作成したプロジェクトの GCP コンソールにログインして、`請求先アカウントをリンク`で自分の組織に紐付け
+**3\.** 作成したプロジェクトの GCP コンソールにログインして、`請求先アカウントをリンク`で自分の組織に紐付け。
 
-**4\.** 作成したプロジェクトの GCP コンソールにログインして、自分の IAM アカウントにプロジェクト削除保護設定ロールを追加
+**4\.** 作成したプロジェクトの GCP コンソールにログインして、自分の IAM アカウントにプロジェクト削除保護設定ロールを追加。
 
-ロール名は`リーエンの変更 | roles/resourcemanager.lienModifier`
+ロール名は`リーエンの変更 | roles/resourcemanager.lienModifier`。
 
-**5\.** ローカルのターミナルで`gcloud auth login`コマンドを実行してログイン
+**5\.** ローカルのターミナルで`gcloud auth login`コマンドを実行してログイン。
 
-**6\.** スクリプトの実行に必要なツールをインストール
+**6\.** スクリプトの実行に必要なツールをインストール。
 
 ```bash
 # Macの場合
@@ -50,7 +50,7 @@ $ gcloud components install alpha
 $ gcloud components install beta
 ```
 
-6. scripts/\_config.sh に GCP プロジェクト作成用の設定を記述
+**7\.** scripts/\_config.sh に GCP プロジェクト作成用の設定を記述。
 
 ```bash
 $ cd /path/to/infra-testing-google-sample
@@ -104,7 +104,7 @@ $ scripts/setup_gcp_project.sh
 
 このリポジトリ内で管理する各環境用(prod, stg, test, sbx-x, e.g.)のテンプレート設定を自動的に作成するためのスクリプトです。
 
-各環境の設定が作成先ディレクトリは[こちら](../terraform/environments/)。
+各環境の設定の作成先ディレクトリは[こちら](../terraform/environments/)。
 
 以下のコマンドで新規に必要な環境用のディレクトリおよびファイルを作成します。
 
@@ -119,7 +119,7 @@ $ scripts/create_terraform_environment_template.sh sbx
 
 このリポジトリ内で管理する Terraform モジュールのテンプレート設定を自動的に作成するためのスクリプトです。
 
-モジュールが作成先ディレクトリは[こちら](../terraform/modules/)。
+モジュールの作成先ディレクトリは[こちら](../terraform/modules/)。
 
 以下のコマンドで新規に作成するモジュールのディレクトリおよびファイルを作成します。
 

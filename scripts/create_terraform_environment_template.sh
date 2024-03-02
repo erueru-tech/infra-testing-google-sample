@@ -83,7 +83,6 @@ terraform {
   }
 }
 EOF
-    # terraform.tfに必要な宣言を事前にしておく
     elif [[ $FILE == auto.tfvars ]]; then
       touch $TIER_DIR/$ENV-$TIER.$FILE
     else

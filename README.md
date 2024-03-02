@@ -1,6 +1,6 @@
 # infra-testing-google-sample
 
-自動テスト可能なインフラストラクチャの実装および運用を行うためのプロジェクトのサンプルで、クラウドサービスは[Google Cloud](https://cloud.google.com/free/?utm_source=google&utm_medium=cpc&utm_campaign=japac-JP-all-ja-dr-BKWS-all-core-trial-EXA-dr-1605216&utm_content=text-ad-none-none-DEV_c-CRE_602341359562-ADGP_Hybrid+%7C+BKWS+-+EXA+%7C+Txt+~+GCP_General_core+brand_main-KWID_43700071566406795-kwd-6458750523&userloc_1009501-network_g&utm_term=KW_google+cloud&gad_source=1&gclid=CjwKCAiAloavBhBOEiwAbtAJO95rgNb1GPBj0MeixreE8ai1B6rNLDGW4UV8UtVtN5F1kLGx_KoYvRoCYfYQAvD_BwE&gclsrc=aw.ds&hl=ja)を使用しています。
+自動テスト可能なインフラストラクチャの実装および運用を行うための Terraform プロジェクトのサンプルで、クラウドサービスは[Google Cloud](https://cloud.google.com/free/?utm_source=google&utm_medium=cpc&utm_campaign=japac-JP-all-ja-dr-BKWS-all-core-trial-EXA-dr-1605216&utm_content=text-ad-none-none-DEV_c-CRE_602341359562-ADGP_Hybrid+%7C+BKWS+-+EXA+%7C+Txt+~+GCP_General_core+brand_main-KWID_43700071566406795-kwd-6458750523&userloc_1009501-network_g&utm_term=KW_google+cloud&gad_source=1&gclid=CjwKCAiAloavBhBOEiwAbtAJO95rgNb1GPBj0MeixreE8ai1B6rNLDGW4UV8UtVtN5F1kLGx_KoYvRoCYfYQAvD_BwE&gclsrc=aw.ds&hl=ja)を使用しています。
 
 なお現時点では、プロトタイプ版未満の完成度であるため、コード利用の際は処理内容などを精査した上で利用してください。
 
@@ -10,11 +10,11 @@
 
 このリポジトリ内で使用される環境変数は、それぞれ以下のような意味となっています。
 
-| 変数名        | 説明                                                                                                                                                                                                                                                                                          |
-| ------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SERVICE       | インフラ構築対象のサービス名あるいはプロダクト名。<br/>このプロジェクトでは`infra-testing-google-sample`(実際には存在しないサービス)としている。                                                                                                                                              |
-| ENV           | サービスの開発/運用が行われる環境の名前。<br/>詳細は下記`環境`参照。                                                                                                                                                                                                                          |
-| PROJECT(\_ID) | 各環境に紐づく Google Cloud プロジェクトの名前。<br/>このインフラプロジェクトでは`${SERVICE}-${ENV}`のルールで命名していて、prod 環境の場合は`infra-testing-google-sample-prod`となる 。<br/>なお Google Cloud のプロジェクト名は 30 文字であるためこのプロジェクト名は実際には使用できない。 |
+| 変数名        | 説明                                                                                                                                                                                                                                                                                      |
+| ------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SERVICE       | インフラ構築対象のサービス名あるいはプロダクト名。<br/>このプロジェクトでは`infra-testing-google-sample`(実際には存在しないサービス)としている。                                                                                                                                          |
+| ENV           | サービスの開発/運用が行われる環境の名前。<br/>詳細は下記`環境`参照。                                                                                                                                                                                                                      |
+| PROJECT(\_ID) | 各環境に紐づく Google Cloud プロジェクトの名前。<br/>このインフラプロジェクトでは`$SERVICE-$ENV`のルールで命名していて、prod 環境の場合は`infra-testing-google-sample-prod`となる 。<br/>なお Google Cloud のプロジェクト名は 30 文字であるためこのプロジェクト名は実際には使用できない。 |
 
 ### 環境
 
@@ -61,7 +61,7 @@ tier1 には Google Cloud のサービス API の有効化の設定や、VPC な
 $ cd /path/to/infra-testing-google-sample/terraform/environments/sbx/tier1
 
 # Terraformのstate管理バケットを動的に指定
-$ terraform init -backend-config="bucket=$SERVICE-$ENV-terraform"
+$ terraform init -backend-config="bucket=$PROJECT-terraform"
 
 $ TF_VAR_service=$SERVICE \
 TF_VAR_env=$ENV \
@@ -83,7 +83,7 @@ tier2 には test 環境や sandbox 環境でコストの面から常時稼働�
 ```bash
 $ cd ../tier2
 
-$ terraform init -backend-config="bucket=$SERVICE-$ENV-terraform"
+$ terraform init -backend-config="bucket=$PROJECT-terraform"
 
 $ TF_VAR_service=$SERVICE \
 TF_VAR_env=$ENV \
