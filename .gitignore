@@ -34,3 +34,4 @@ override.tf.json
 terraform.rc
 
 # The settings below are defined by erueru-tech.
+.idea

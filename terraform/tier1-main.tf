@@ -29,10 +29,9 @@ module "project_services" {
 }
 
 module "network" {
-  source       = "../../../modules/network"
-  service      = var.service
-  env          = var.env
-  network_name = "sample-vpc"
-  subnet_name = "sample-subnet"
-  subnet_ip    = var.subnet_ip
+  source    = "../../../modules/network"
+  service   = var.service
+  env       = var.env
+  subnet_ip = var.subnet_ip
+  peering_network_address = var.peering_network_address
 }
