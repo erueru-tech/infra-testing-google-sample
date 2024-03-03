@@ -155,10 +155,10 @@ done
 if [[ $ENV != "sbx"* ]]; then
   readonly reason="The $ENV environment does not allow project deletion."
   cmd=`cat <<EOF
-  gcloud alpha resource-manager liens create --project=$PROJECT \
-  --restrictions=resourcemanager.projects.delete \
-  --reason="$reason"
-  EOF`
+gcloud alpha resource-manager liens create --project=$PROJECT \
+--restrictions=resourcemanager.projects.delete \
+--reason="$reason"
+EOF`
   function to_deny_prject_deletion() {
     # ref. https://cloud.google.com/sdk/gcloud/reference/alpha/resource-manager/liens/list
     liens=`gcloud alpha resource-manager liens list --project=$PROJECT`

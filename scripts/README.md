@@ -6,7 +6,7 @@
 
 このスクリプトでは検証に必要な Google Cloud プロジェクトのセットアップを行います。
 
-なお Google Cloud プロジェクトは人/会社ごとに設定やクォータ、作成方法、ポリシーなどが異なるため、汎用的な実装を行うことができません。
+なお Google Cloud プロジェクトは個人/会社ごとに設定やクォータ、作成方法、ポリシーなどが異なるため、汎用的な実装を行うことができません。
 
 そのため、このスクリプトは基本的に erueru-tech の Google Cloud および開発環境に依存した実装となっており、**第三者の利用はまったく想定していません**。
 
@@ -30,7 +30,7 @@
 
 (ENV=sbx-e は開発チーム erueru-tech が使う sandbox 環境という意味)
 
-ちなみに Google Cloud のプロジェクトの文字数上限は 30 文字までとなっており、`infra-testing-google-sample-sbx-e`はオーバーしているがあくまでサンプルとして捉える。
+ちなみに Google Cloud のプロジェクトの文字数上限は 30 文字までとなっており、`infra-testing-google-sample-sbx-e`はオーバーしているがあくまで例として捉える。
 
 **3\.** 作成したプロジェクトの GCP コンソールにログインして、`請求先アカウントをリンク`で自分の組織に紐付け。
 
@@ -50,7 +50,7 @@ $ gcloud components install alpha
 $ gcloud components install beta
 ```
 
-**7\.** scripts/\_config.sh に GCP プロジェクト作成用の設定を記述。
+**7\.** scripts/\_config.sh に GCP プロジェクトセットアップ用の設定を記述。
 
 ```bash
 $ cd /path/to/infra-testing-google-sample
@@ -77,7 +77,7 @@ readonly ENV="sbx-e"
 
 実行準備が完了したら、以下のコマンドでプロジェクトのセットアップを行ないます。
 
-冪等には造られているので、途中でエラー発生しても、問題箇所を修正して再実行すればいいようには実装されています。
+冪等には作られているので、途中でエラー発生しても、問題箇所を修正して再実行すればいいようには実装されています。
 
 ```bash
 $ cd /path/to/infra-testing-google-sample
@@ -86,7 +86,7 @@ $ scripts/setup_gcp_project.sh
 
 セットアップ処理では以下のような処理を行なっています、
 
-- \_config.sh で指定されたプロジェクト($SERVICE+$ENV)がまだ存在しなければ作成(プロジェクト作成権限が必要)
+- \_config.sh で指定されたプロジェクト($SERVICE-$ENV)がまだ存在しなければ作成(プロジェクト作成権限が必要)
 - ローカルの gcloud コマンドの適用先を\_config.sh で指定されたプロジェクトに切り替え
 - プロジェクトの Billing 設定
 - プロジェクトに必要な各種サービスの API を有効化

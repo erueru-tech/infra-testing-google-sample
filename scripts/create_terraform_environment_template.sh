@@ -18,7 +18,7 @@ readonly TF_FILES=(
   "outputs.tf"
   "auto.tfvars"
 )
-readonly LINK_FILES=(
+readonly LINK_TF_FILES=(
   "environment-globals.tf"
   "globals.tf"
   "tier1-main.tf"
@@ -30,7 +30,7 @@ readonly LINK_FILES=(
 )
 
 if [[ "$ENV" != "prod" && "$ENV" != "stg" && "$ENV" != "test" && "$ENV" != "sbx" ]]; then
-  echo "The value of \$ENV must be 'prod', 'stg', 'test' or 'sbx', but it is '\${var.env}'.\"."
+  echo "The value of \$ENV must be 'prod', 'stg', 'test' or 'sbx', but it is '$ENV'."
   exit 1
 fi
 
@@ -91,7 +91,7 @@ EOF
     echo "create $FILE"
   done
 
-  for FILE in "${LINK_FILES[@]}"; do
+  for FILE in "${LINK_TF_FILES[@]}"; do
     if [[ $FILE != tier* || $FILE == $TIER* ]]; then
       ln -s ../../../$FILE $TIER_DIR/$FILE
       echo "link ../../../$FILE to $FILE"
@@ -115,4 +115,14 @@ echo "create tier2/data.tf"
 if [[ "$ENV" == "sbx" ]]; then
   echo "sbx-tier*.auto.tfvars" >> $ENV_DIR/.gitignore
   echo "create .gitignore"
+fi
+
+# testおよびsandbox環境ではterraformコマンド実行のヘルパースクリプトを追加
+if [[ "$ENV" == "test" || "$ENV" == "sbx" ]]; then
+  ln -s ../../scripts/apply.sh $ENV_DIR/tier1/apply.sh
+  echo "link ../../scripts/apply.sh to tier1/apply.sh"
+  ln -s ../../scripts/apply.sh $ENV_DIR/tier2/apply.sh
+  echo "link ../../scripts/apply.sh to tier2/apply.sh"
+  ln -s ../../scripts/destroy.sh $ENV_DIR/tier2/destroy.sh
+  echo "link ../../scripts/destroy.sh to tier2/destroy.sh"
 fi

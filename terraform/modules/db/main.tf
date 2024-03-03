@@ -6,6 +6,7 @@ module "sql_db" {
   version          = "19.0.0"
   project_id       = local.project_id
   region           = var.region
+  zone             = var.zone
   database_version = "MYSQL_8_0_36"
   # MySQLインスタンス内に作成されるデータベースに関する設定
   # テーブルに絵文字が含まれる値を登録できるようにするためにutf8mb4を指定
@@ -20,7 +21,6 @@ module "sql_db" {
   name                 = var.db_instance_name
   random_instance_name = var.random_instance_name
   # インスタンスのスペック
-  # デフォルトは'db-n1-standard-1'
   tier = var.tier
   # MySQLログイン用ユーザの名前
   user_name = "sample-mysql-user"
@@ -38,6 +38,7 @@ module "sql_db" {
     start_time         = "21:00"
   }
   # 実行に2秒以上かかったクエリをslowクエリとしてログに出力する設定
+  # ちなみにOLTP系のアプリから接続するDBならば2秒でも長い
   database_flags = [
     {
       name  = "slow_query_log"
@@ -57,47 +58,4 @@ module "sql_db" {
   deletion_protection_enabled = var.deletion_protection
   # 作成に20分以上かかるケースがあり、デフォルトの30mだと不足するケースが発生しそうであるため
   create_timeout = "60m"
-  # この設定を明示的に記述しないと、依存先のリソース作成完了前にインスタンスを作成しようとしてエラーになる
-  module_depends_on = [google_service_networking_connection.cloudsql_network_connection]
-}
-
-# 以下のドキュメントを参考に設定
-# https://cloud.google.com/sql/docs/mysql/samples/cloud-sql-mysql-instance-private-ip?hl=ja
-# https://cloud.google.com/vpc/docs/configure-private-services-access?hl=ja
-#
-# ちなみにname/address/prefix_lengthの値の組み合わせは一度決めたら変更してはいけない
-# 途中で変更すると、destroy後の再作成で以下のようなエラーが発生する
-# https://github.com/hashicorp/terraform-provider-google/issues/3294
-# なお以下のコマンドを実行することで解決はできるとのこと
-# https://github.com/hashicorp/terraform-provider-google/issues/3294#issuecomment-476715149
-resource "google_compute_global_address" "cloudsql_ip_range" {
-  name          = "sample-cloudsql-ip-range"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  address       = var.cloudsql_network_address
-  prefix_length = 24
-  network       = var.vpc_id
-}
-
-# terraform destroyを実行すると以下のエラーが発生してこのリソースを削除できない
-# https://github.com/hashicorp/terraform-provider-google/issues/16275
-# ワークアラウンドとしてgoogle-betaプロバイダのバージョンを4.x系に戻すか、必ず以下のコマンドを実行してからdestroyを実行する必要がある
-# $ gcloud compute networks peerings delete servicenetworking-googleapis-com --network sample-vpc --project プロジェクト名
-resource "google_service_networking_connection" "cloudsql_network_connection" {
-  network                 = var.vpc_id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.cloudsql_ip_range.name]
-}
-
-resource "google_compute_network_peering_routes_config" "cloudsql_peering_routes" {
-  peering              = google_service_networking_connection.cloudsql_network_connection.peering
-  network              = var.vpc_name
-  import_custom_routes = true
-  export_custom_routes = true
-}
-
-# FIXME globals.tfに作成すると複製されるかのような意図しない挙動があるため調査必要
-# それまでモジュール毎に定義
-resource "random_id" "gen" {
-  byte_length = 3
 }
