@@ -30,7 +30,7 @@ readonly LINK_FILES=(
 )
 
 if [[ "$ENV" != "prod" && "$ENV" != "stg" && "$ENV" != "test" && "$ENV" != "sbx" ]]; then
-  echo "The value of \$ENV must be 'prod', 'stg', 'test' or 'sbx', but it is '\${var.env}'.\"."
+  echo "The value of \$ENV must be 'prod', 'stg', 'test' or 'sbx', but it is '$ENV'."
   exit 1
 fi
 
