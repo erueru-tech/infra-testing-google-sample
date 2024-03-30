@@ -20,17 +20,29 @@ readonly TOUCH_FILES=(
   "main.tf"
   "variables.tf"
   "outputs.tf"
+  "tests/variables.tftest.hcl"
+  "tests/main.tftest.hcl"
+  "_tfvars.sh"
 )
 for FILE in "${TOUCH_FILES[@]}"; do
   touch $MODULE_DIR/$FILE
   echo "create $FILE"
 done
 
-readonly LINK_FILES=(
+readonly LINK_TF_FILES=(
   "globals.tf"
   "module-globals.tf"
 )
-for FILE in "${LINK_FILES[@]}"; do
+for FILE in "${LINK_TF_FILES[@]}"; do
   ln -s ../../$FILE $MODULE_DIR/$FILE
+  echo "link $FILE"
+done
+
+readonly LINK_SCRIPT_FILES=(
+  "apply_destroy.sh"
+  "test.sh"
+)
+for FILE in "${LINK_SCRIPT_FILES[@]}"; do
+  ln -s ../scripts/$FILE $MODULE_DIR/$FILE
   echo "link $FILE"
 done

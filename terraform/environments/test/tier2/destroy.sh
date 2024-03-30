@@ -1,0 +1,1 @@
+../../scripts/destroy.sh

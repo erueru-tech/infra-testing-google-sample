@@ -7,10 +7,6 @@ output "mysql_main_connection_name" {
   value = module.sql_db.instance_connection_name
 }
 
-output "mysql_main_private_address" {
-  value = module.sql_db.private_address
-}
-
 output "mysql_main_private_ip_address" {
   value = module.sql_db.private_ip_address
 }

@@ -1,43 +1,40 @@
-# MySQLが配置されるVPCの情報
+# Cloud SQLインスタンスが配置されるVPCのID
 variable "vpc_id" {
   type    = string
   default = null
-  # 以下のアサーション書かなくてもnullが評価されたタイミングでエラーにはなるので趣味の問題か
   validation {
     condition     = var.vpc_id != null
     error_message = "The var.vpc_id value is required."
   }
 }
 
-variable "vpc_name" {
+# Cloud SQLインスタンスが配置されるZone
+variable "zone" {
   type    = string
-  default = null
-  validation {
-    condition     = var.vpc_name != null
-    error_message = "The var.vpc_name value is required."
-  }
+  default = "asia-northeast1-a"
 }
 
-# データベース(MySQLのスキーマ)名やインスタンス名およびランダム化などの設定
-# dev~prdの実動環境では固定の名前、testおよびsbxではランダマイズするといった切り替えに使う変数
-variable "db_name" {
-  type = string
-  default = "sample-db"
-}
-
-
+# Cloud SQLインスタンス名
+# 下記random_instance_nameをtrueにすることで、サフィックスにランダムな文字列が付与される
 variable "db_instance_name" {
-  type = string
+  type    = string
   default = "sample-instance"
 }
 
-
+# prod、stgといった実動環境では固定の名前でインスタンスを構築して問題ないのでfalseを設定
+# testおよびsbx環境では、テスト時に短期間に同じ名前でCloud SQLインスタンスを再作成できない仕様を回避するためにtrueを設定(インスタンス名がランダマイズされる)
 variable "random_instance_name" {
-  type = bool
+  type    = bool
   default = true
 }
 
-# テストの実行がスペックに依存しない場合はdb-f1-micro、dev~prdの実稼働環境でこのモジュールを利用する場合は要件にあったtierを選択できるように変数化
+# Cloud SQLインスタンス内に構築されるデータベース(MySQLではスキーマ)名
+variable "db_name" {
+  type    = string
+  default = "sample-db"
+}
+
+# テストの実行がスペックに依存しない場合はdb-f1-microにして、prod、stgのような実稼働環境でインスタンスを作成する場合は要件にあったtierを選択できるように変数化
 variable "tier" {
   type     = string
   default  = "db-f1-micro"
@@ -48,8 +45,8 @@ variable "tier" {
   }
 }
 
-# 本番環境や可用性のテストを行いたい場合以外では、コスト面の理由から高可用性を無効にしたいケースがあるため変数化
-# 通常availability_typeは'ZONAL'もしくは'REGIONAL'を設定するが、sql-dbモジュールでは'ZONAL'を指定したい場合、代わりにnullを指定する
+# prod環境や可用性のテストを行いたい場合以外では、コスト面の理由から高可用性を無効にしたいため変数化
+# 通常availability_typeは'ZONAL'もしくは'REGIONAL'を設定するが、sql-dbブループリントモジュールでは'ZONAL'を指定したい場合、代わりにnullを指定する
 variable "availability_type" {
   type    = string
   default = null
@@ -59,20 +56,8 @@ variable "availability_type" {
   }
 }
 
-# sql-dbモジュールのデフォルトの削除保護設定が有効となっているために、テストでdestroyできない問題を解決するために変数化
+# sql-dbブループリントモジュールの削除保護設定のデフォルト値が有効となっているのが原因で、テスト時にdestroyできない問題を解決するためにデフォルト値を無効(false)に設定
 variable "deletion_protection" {
   type    = bool
   default = false
-}
-
-# MySQLに付与されるIPアドレスの範囲はcloudsql_network_addressで指定(サブネットマスクは24で固定)
-variable "cloudsql_network_address" {
-  type        = string
-  default     = null
-  description = "This variable can accept a network address, e.g. '10.1.1.0'."
-  validation {
-    # 10.x.x.0のフォーマットに従っているかチェック
-    condition     = can(regex("^10\\.([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-4])\\.([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-4])\\.0$", var.cloudsql_network_address))
-    error_message = "The var.cloudsql_network_address value must be network address."
-  }
 }

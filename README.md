@@ -33,137 +33,75 @@ infra-testing-google-sample サービスで使用する環境は、`prod`、`stg
 
 **現時点でこのリポジトリのコードは、あくまでコードサンプルの公開のみを目的としていて、実際に動作させることは想定していません。**
 
-(将来的にプロトタイプ版が完成して、それが実際のサービスでの運用に耐えられると判断された際には、テンプレートリポジトリ化する予定)
-
 それでも個人環境で動作検証を行いたい場合は、[scripts/README.md](./scripts/README.md)の手順を参考に Google Cloud プロジェクトのセットアップを完了させてください。
 
-セットアップが完了したら、[environments](./terraform/environments/) ディレクトリや [modules](./terraform/modules/) ディレクトリ配下で terraform init、plan、apply、destroy コマンドを適切な変数を与えて実行することで、インフラストラクチャの構築やテストを行うことができます。
+### 手動テスト環境構築
 
-**(※以下で説明されているコマンドを実行すると課金が発生する点にご注意ください)**
+**(※)以下で説明されているコマンドを実行すると課金が発生する点にご注意ください。**
 
-sandbox 環境では以下のようなコマンドでインフラストラクチャの構築や動作確認を行います。
+以降の説明で実行するすべてのスクリプトは以下の環境変数を必要としているため、あらかじめ定義します。
 
-なおコマンド実行の前提として、以下のような変数がターミナルに設定されている必要があります。
+(あくまで説明を簡単にするためで、実際の開発では意図しない環境にコマンドが実行される可能性があるため、推奨されません)
 
 ```bash
-SERVICE=infra-testing-google-sample
-ENV=sbx-e
-PROJECT=$SERVICE-$ENV
+export TF_VAR_service=infra-testing-google-sample
+export TF_VAR_env=sbx-e
 ```
 
-まず初めに [environments](./terraform/environments/) ディレクトリ内にある sandbox 環境用の [tier1](./terraform/environments/sbx/tier1/) ディレクトリ内に定義されているリソースを作成します。
+手動テストを行うための環境を構築するために、まず初めに [environments](./terraform/environments/) ディレクトリ内にある sandbox 環境用の [tier1](./terraform/environments/sbx/tier1/) ディレクトリ内に定義されているモジュールやリソースを作成します。
 
-tier1 には Google Cloud のサービス API の有効化の設定や、VPC などのネットワーク設定といった基本的に destroy を行わないようにしたいモジュールやリソースを定義しています。
-
-リソースの作成は以下のコマンドで行います。
+tier1 には Google Cloud のサービス API の有効化の設定や、VPC などのネットワーク設定といった基本的に **destroy を行わない**ようにしたいモジュールやリソースを定義していて、以下のコマンドでプロビジョニングを行います。
 
 ```bash
 $ cd /path/to/infra-testing-google-sample/terraform/environments/sbx/tier1
-
-# Terraformのstate管理バケットを動的に指定
-$ terraform init -backend-config="bucket=$PROJECT-terraform"
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-terraform plan
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-terraform apply -auto-approve
+$ ./apply.sh
+...
+# applyを実行するか確認されるので'yes'を入力
 ```
 
 以上で API の有効化と VPC などのネットワークリソースの作成が完了します。
 
 次に [tier2](./terraform/environments/sbx/tier2/) ディレクトリ内に定義されているリソースを作成します。
 
-tier2 には test 環境や sandbox 環境でコストの面から常時稼働させたくない、かつ destroy を行なっても問題のないモジュールやリソースを定義しています。
+tier2 には test 環境や sandbox 環境でコストの面から常時稼働させたくない、かつ **destroy を行なっても問題ない**モジュールやリソースを定義しています。
 
 リソースの作成は以下のコマンドで行います。
 
 ```bash
 $ cd ../tier2
-
-$ terraform init -backend-config="bucket=$PROJECT-terraform"
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-terraform plan
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-terraform apply -auto-approve
-
-# このモジュールでterraform destroyを実行すると以下のエラーが発生してgoogle_service_networking_connectionリソースを削除できない
-# https://github.com/hashicorp/terraform-provider-google/issues/16275
-# ワークアラウンドとしてgoogle-betaプロバイダのバージョンを4.x系に戻すか、必ず以下のコマンドを実行してからdestroyを実行する必要がある
-$ gcloud compute networks peerings delete servicenetworking-googleapis-com --network sample-vpc --project $PROJECT
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-terraform destroy
+$ ./apply.sh
 ```
 
-以上で sandbox 環境の構築は完了となります。
+手動テストが完了して、リソースが不要になった場合は以下のコマンドで破棄を行います。
 
-次にモジュール単位で Terraform の設定ファイルの挙動を確認したい場合は、[modules](./terraform/modules/) ディレクトリ配下の各モジュールのディレクトリ内で terraform コマンドを実行します。
+```bash
+$ ./destroy.sh
+...
+# destroyを実行するか確認されるので'yes'を入力
+```
 
-まず network モジュールの動作確認は以下でコマンド行います。
+### Terraform モジュールのテスト実行
+
+Terraform モジュールに対して自動テストを行う場合は、[modules](./terraform/modules/) ディレクトリ配下の各モジュールのディレクトリ内で test.sh を実行します。
+
+例として、network モジュールに対するテスト実行は以下のコマンドで行います。
 
 ```bash
 $ cd /path/to/infra-testing-google-sample/terraform/modules/network
-
-# モジュールのリソースをstate管理すべきかは現在検討中
-# 現時点ではローカルにstateファイルを作成する想定
-$ terraform init
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-TF_VAR_subnet_ip=10.4.101.0/24 \
-terraform plan
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-TF_VAR_subnet_ip=10.4.101.0/24 \
-terraform apply -auto-approve
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-TF_VAR_subnet_ip=10.4.101.0/24 \
-terraform destroy
+$ ./test.sh
 ```
 
-次に db モジュールの動作確認は以下でコマンド行います。
+test.sh ではテストが完了するとリソースが自動的に削除されてしまうため、GCP コンソールなどからモジュールの作成状態を確認するなど手動でテストしたい場合は apply_destroy.sh を使用します。
 
 ```bash
-$ cd ../db
-
-$ terraform init
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-TF_VAR_vpc_id=projects/$PROJECT/global/networks/sample-vpc \
-TF_VAR_vpc_name=sample-vpc \
-TF_VAR_cloudsql_network_address=10.4.102.0 \
-terraform plan
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-TF_VAR_vpc_id=projects/$PROJECT/global/networks/sample-vpc \
-TF_VAR_vpc_name=sample-vpc \
-TF_VAR_cloudsql_network_address=10.4.102.0 \
-terraform apply -auto-approve
-
-gcloud compute networks peerings delete servicenetworking-googleapis-com --network sample-vpc --project $PROJECT
-
-$ TF_VAR_service=$SERVICE \
-TF_VAR_env=$ENV \
-TF_VAR_vpc_id=projects/$PROJECT/global/networks/sample-vpc \
-TF_VAR_vpc_name=sample-vpc \
-TF_VAR_cloudsql_network_address=10.4.102.0 \
-terraform destroy
+$ ./apply_destroy.sh apply
 ```
 
-以上が動作確認の基本的な方法となります。
+テストが完了したら、以下のコマンドでモジュールのリソースをクリーンアップします。
+
+```bash
+$ ./apply_destroy.sh destroy
+```
 
 ## 開発
 
