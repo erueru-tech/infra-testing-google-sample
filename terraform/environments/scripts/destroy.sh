@@ -8,7 +8,7 @@ if [[ $TF_VAR_env != "test" && $TF_VAR_env != sbx-[0-9a-z]* ]]; then
   exit 1
 fi
 
-# run apply command
+# run destroy command
 # プロジェクトルートからでもこのシェルを実行出来るようにするための処理
 cd $(dirname $0)
 terraform init -backend-config="bucket=$TF_VAR_service-$TF_VAR_env-terraform" -upgrade

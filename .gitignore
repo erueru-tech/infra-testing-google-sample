@@ -33,6 +33,9 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# state lock files
+.terraform.tfstate.lock.info
+
 # The settings below are defined by erueru-tech.
 .idea
 .DS_Store

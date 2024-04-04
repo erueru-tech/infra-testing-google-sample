@@ -11,8 +11,8 @@ readonly TIERS=(
   "tier1"
   "tier2"
 )
-readonly TF_FILES=(
-  "terraform.tf"
+readonly NEW_TF_FILES=(
+  "backend.tf"
   "main.tf"
   "variables.tf"
   "outputs.tf"
@@ -44,7 +44,7 @@ for TIER in "${TIERS[@]}"; do
   mkdir -p $TIER_DIR/tests
   echo "create $TIER directory"
 
-  for FILE in "${TF_FILES[@]}"; do
+  for FILE in "${NEW_TF_FILES[@]}"; do
     # variables.tfにはenv変数を最初から宣言しておく
     if [[ $FILE == variables.tf ]]; then
       if [[ $ENV == "sbx" ]]; then
@@ -64,8 +64,8 @@ variable "env" {
   }
 }
 EOF
-    # terraform.tfに必要な宣言を事前にしておく
-    elif [[ $FILE == terraform.tf ]]; then
+    # backend.tfに必要な宣言を事前にしておく
+    elif [[ $FILE == backend.tf ]]; then
       cat <<EOF > $TIER_DIR/$FILE
 terraform {
   backend "gcs" {
@@ -76,7 +76,7 @@ terraform {
     # prod環境についてはローカルから誤って、destroyコマンドを発行しないよう意図的にバケット名をそのままや適当な名前にして、
     # 本番リリースCI/CD時に-backend-configオプションでstate管理バケットを指定するような運用を想定している
     # sandbox環境は直書きしても問題ないが、自分用の環境のバケット設定を維持するためにこのフォルダ内の.gitignoreに
-    # terraform.tf(このファイル)を指定するなどしてGit管理されないようにする
+    # backend.tf(このファイル)を指定するなどしてGit管理されないようにする
 
     bucket  = "your-terraform-bucket-name"
     prefix  = "terraform/$TIER-state"
