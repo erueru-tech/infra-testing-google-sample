@@ -1,0 +1,38 @@
+name: setup
+description: setup job
+
+inputs:
+  install_terraform:
+    description: install Terraform
+    required: true
+    default: "true"
+  auth_gcloud:
+    description: authenticate to Google Cloud
+    required: true
+    default: "true"
+  workload_identity_provider:
+    description: Workload Identity Provider ID
+    required: false
+  service_account:
+    description: SA for running Terraform CLI
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: install Terraform CLI
+      if: ${{ inputs.install_terraform == 'true' }}
+      # v3.0.0 ref. https://github.com/hashicorp/setup-terraform/releases/tag/v3.0.0
+      uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36
+      with:
+        terraform_version: "1.7.5"
+
+    - name: auth for Google Cloud
+      if: ${{ inputs.auth_gcloud == 'true' }}
+      # v2.1.2 ref. https://github.com/google-github-actions/auth/releases/tag/v2.1.2
+      id: auth-for-google-cloud
+      uses: google-github-actions/auth@55bd3a7c6e2ae7cf1877fd1ccb9d54c0503c457c
+      with:
+        create_credentials_file: true
+        workload_identity_provider: ${{ inputs.workload_identity_provider }}
+        service_account: ${{ inputs.service_account }}

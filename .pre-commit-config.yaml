@@ -13,14 +13,19 @@ repos:
 
   - repo: local
     hooks:
+      - id: test-matrix
+        name: check test_matrix.yaml
+        entry: ./scripts/check_test_matrix.sh
+        language: system
+        always_run: true
+
+  - repo: local
+    hooks:
       - id: terraform-fmt
         name: run terraform fmt
-        entry: |
-          cd terraform
-          terraform fmt -recursive
+        entry: ./scripts/tffmt.sh
         language: system
-        files: (\.tf|\.tfvars|\.hcl)$
-        exclude: \.terraform\/.*$
+        always_run: true
 
   - repo: local
     hooks:
@@ -28,5 +33,13 @@ repos:
         name: run tflint
         entry: ./scripts/tflint.sh
         language: system
-        files: (\.tf|\.tfvars|\.hcl)$
-        exclude: \.terraform\/.*$
+        always_run: true
+
+  # チェックに1分以上かかるのでCIに任せる
+  # - repo: local
+  #   hooks:
+  #     - id: terraform-validate
+  #       name: run terraform validate
+  #       entry: ./scripts/tfvalidate.sh
+  #       language: system
+  #       always_run: true

@@ -1,0 +1,59 @@
+name: prod
+
+on:
+  # FIXME 後で消す
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - release
+    types: [closed]
+
+concurrency:
+  group: prod
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  apply:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: setup terraform and gcloud CLI
+        uses: ./.github/actions/setup
+        with:
+          workload_identity_provider: ${{ secrets.PROD_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.PROD_SERVICE_ACCOUNT }}
+
+      - name: run terraform apply in prod
+        uses: ./.github/actions/tfcmd
+        with:
+          service: ${{ secrets.PROD_SERVICE }}
+          env: prod
+          command: apply -auto-approve
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+
+  slack:
+    # FIXME 実験直す
+    if: always() && github.event.pull_request.merged
+    runs-on: ubuntu-22.04
+    needs: apply
+    permissions:
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: send the workflow result to the slack channel
+        uses: ./.github/actions/slack
+        with:
+          conclusion: ${{ needs.apply.result }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

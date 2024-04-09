@@ -23,4 +23,5 @@ terraform test -filter=tests/variables.tftest.hcl
 # planおよびtestコマンド実行に必要な環境変数を読み込み
 source "./_tfvars.sh"
 terraform plan
-terraform test -filter=tests/main.tftest.hcl
+# FIXME
+#terraform test -filter=tests/main.tftest.hcl

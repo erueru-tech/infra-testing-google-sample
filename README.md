@@ -12,7 +12,7 @@
 
 | 変数名        | 説明                                                                                                                                                                                                                                                                                      |
 | ------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SERVICE       | インフラ構築対象のサービス名あるいはプロダクト名。<br/>このプロジェクトでは`infra-testing-google-sample`(実際には存在しないサービス)としている。                                                                                                                                          |
+| SERVICE       | インフラ構築対象のサービス名あるいはプロダクト名で 23 文字以内必須。<br/>このプロジェクトでは`infra-testing-google-sample`(実際には存在しないサービス)としている。                                                                                                                        |
 | ENV           | サービスの開発/運用が行われる環境の名前。<br/>詳細は下記`環境`参照。                                                                                                                                                                                                                      |
 | PROJECT(\_ID) | 各環境に紐づく Google Cloud プロジェクトの名前。<br/>このインフラプロジェクトでは`$SERVICE-$ENV`のルールで命名していて、prod 環境の場合は`infra-testing-google-sample-prod`となる 。<br/>なお Google Cloud のプロジェクト名は 30 文字であるためこのプロジェクト名は実際には使用できない。 |
 
@@ -112,6 +112,8 @@ $ ./apply_destroy.sh destroy
 - [tfenv](https://github.com/tfutils/tfenv?tab=readme-ov-file#installation)
 - [TFLint](https://github.com/terraform-linters/tflint?tab=readme-ov-file#installation)
 - [pre-commit](https://pre-commit.com/#install)
+- [jq](https://github.com/jqlang/jq?tab=readme-ov-file#installation)
+- [yq](https://github.com/mikefarah/yq?tab=readme-ov-file#install)
 
 ## バージョン
 

@@ -30,7 +30,10 @@ readonly SERVICES=(
 )
 readonly ADMIN_SA="infra-admin"
 readonly ADMIN_SA_EMAIL="$ADMIN_SA@$PROJECT.iam.gserviceaccount.com"
-readonly BUCKET="gs://$PROJECT-terraform"
+readonly BUCKETS=(
+  "gs://$PROJECT-terraform"
+  "gs://test-$PROJECT-terraform"
+)
 
 # functions
 function run() {
@@ -187,15 +190,18 @@ function to_create_service_account() {
 run "$cmd" to_create_service_account
 
 # Terraformのstate管理用バケット作成
+# "gs://test-$PROJECT-terraform"の方はテストコードで使用するfakeリソース
 # ref. https://cloud.google.com/storage/docs/gsutil/commands/mb
-cmd=`cat <<EOF
+for BUCKET in "${BUCKETS[@]}"; do
+  cmd=`cat <<EOF
 gsutil mb -p $PROJECT -c multi_regional -l Asia $BUCKET
 gsutil versioning set on $BUCKET
 EOF`
-function to_make_bucket() {
-  if ! gsutil ls -b $BUCKET > /dev/null 2>&1; then
-    echo "make a bucket for Terraform and enable versioning"
-    eval "${cmd}"
-  fi
-}
-run "$cmd" to_make_bucket
+  function to_make_bucket() {
+    if ! gsutil ls -b $BUCKET > /dev/null 2>&1; then
+      echo "make a bucket for Terraform and enable versioning"
+      eval "${cmd}"
+    fi
+  }
+  run "$cmd" to_make_bucket
+done

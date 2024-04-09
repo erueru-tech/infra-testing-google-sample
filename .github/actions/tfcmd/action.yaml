@@ -1,0 +1,92 @@
+name: tfcmd
+description: run terraform command
+
+inputs:
+  gh_token:
+    description: GITHUB_TOKEN
+    required: true
+  service:
+    description: service name
+    required: true
+  env:
+    description: environment name
+    required: true
+  command:
+    description: input \'plan\' or \'apply -auto-approve\'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: run terraform command
+      id: tfcmd_run
+      shell: bash
+      env:
+        TF_VAR_service: ${{ inputs.service }}
+        TF_VAR_env: ${{ inputs.env }}
+      run: |
+        if [[ "${{ inputs.command }}" != "plan" && "${{ inputs.command }}" != "apply -auto-approve" ]]; then
+          echo "The value of inputs.command must be 'plan' or 'apply -auto-approve', but it is '${{ inputs.command }}'."
+          exit 1
+        fi
+        # tier1 -> tier2の順番でterraform planもしくはapplyコマンドを実行
+        for tier in "tier1" "tier2"; do
+          cd ${GITHUB_WORKSPACE}/terraform/environments/${{ env.TF_VAR_env }}/${tier}/
+          terraform init -backend-config="bucket=${{ env.TF_VAR_service }}-${{ env.TF_VAR_env }}-terraform"
+          terraform ${{ inputs.command }} | tee /tmp/${tier}_tfcmd.log
+          # 実行結果の行だけを抽出して$GITHUB_OUTPUTに出力
+          # sed -r ... はログ出力からカラーコードを除去する処理(grep --color=noneだけでは無理)
+          output=$(grep --color=none -E "[0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy|No changes" /tmp/${tier}_tfcmd.log | sed -r "s/\x1B\[[0-9;]*[mGK]//g")
+          echo "${tier}_output=${output}" >> $GITHUB_OUTPUT
+        done
+
+    - name: comment result of terraform run to pull request
+      # v7.0.1 ref. https://github.com/actions/github-script/releases/tag/v7.0.1
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+      env:
+        TIER1_OUTPUT: ${{ steps.tfcmd_run.outputs.tier1_output }}
+        TIER2_OUTPUT: ${{ steps.tfcmd_run.outputs.tier2_output }}
+        ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      with:
+        github-token: ${{ inputs.gh_token }}
+        script: |
+          // 既にterraformコマンド実行結果のコメントが投稿済みか確認
+          // copied below code from https://developer.hashicorp.com/terraform/tutorials/automation/github-actions#review-actions-workflows
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          const title = "${{ inputs.env }}$ terraform ${{ inputs.command }}";
+          const botComment = comments.find(comment => {
+            return comment.user.type === 'Bot' && comment.body.includes(title)
+          });
+
+          // 既に投稿済みのコメントが存在する場合コメントを削除
+          if (botComment) {
+            github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+            });
+          }
+
+          // コメント文作成
+          const color = (msg) =>
+            msg.includes("No changes") || msg.includes(" 0 to change, 0 to destroy")
+              ? "green"
+              : msg.includes(" 0 to destroy")
+              ? "orange"
+              : "red";
+          const output = `**Action URL: ${process.env.ACTION_URL}**<br/>
+            **${title}**<br/>
+            $\\color{${color(process.env.TIER1_OUTPUT)}}\\textsf{[tier1] ${process.env.TIER1_OUTPUT}}$<br/>
+            $\\color{${color(process.env.TIER2_OUTPUT)}}\\textsf{[tier2] ${process.env.TIER2_OUTPUT}}$`;
+
+          // コメント投稿
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          });

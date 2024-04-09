@@ -34,7 +34,7 @@
 
 **3\.** 作成したプロジェクトの GCP コンソールにログインして、`請求先アカウントをリンク`で自分の組織に紐付け。
 
-**4\.** 作成したプロジェクトの GCP コンソールにログインして、自分の IAM アカウントにプロジェクト削除保護設定ロールを追加。
+**4\. 作成したプロジェクトの GCP コンソールにログインして、自分の IAM アカウントにプロジェクト削除保護設定ロールを追加。**
 
 ロール名は`リーエンの変更 | roles/resourcemanager.lienModifier`。
 
@@ -81,7 +81,7 @@ readonly ENV="sbx-e"
 
 ```bash
 $ cd /path/to/infra-testing-google-sample
-$ scripts/setup_gcp_project.sh
+$ ./scripts/setup_gcp_project.sh
 ```
 
 セットアップ処理では以下のような処理を行なっています、
@@ -112,7 +112,7 @@ $ scripts/setup_gcp_project.sh
 # sbx環境用のディレクトリおよびファイルを新規に構築する場合
 # なお環境変数ではENV=sbx-eのように開発者を識別するためのサフィックス(-e)を付与していたが、ディレクトリ名はsbxになる
 $ cd /path/to/infra-testing-google-sample
-$ scripts/create_terraform_environment_template.sh sbx
+$ ./scripts/create_terraform_environment_template.sh sbx
 ```
 
 ## create_terraform_module_template.sh
@@ -126,16 +126,44 @@ $ scripts/create_terraform_environment_template.sh sbx
 ```bash
 # appモジュールを作成する場合
 $ cd /path/to/infra-testing-google-sample
-$ scripts/create_terraform_module_template.sh app
+$ ./scripts/create_terraform_module_template.sh app
 ```
 
-## tflint.sh
+## check_test_matrix.sh
 
-Terraform の HCL ファイルに対する静的チェックを tfLint コマンドで実行するためのスクリプトです。
+テストコード実行対象モジュールを定義する [.github/data/test_matrix.yaml](../.github/data/test_matrix.yaml) が [modules](../terraform/modules/) ディレクトリと同期されている状態かチェックするスクリプトです。
+
+## tffmt.sh
+
+全 HCL ファイルに対してフォーマットを実行するためのスクリプトです。
+
+CI 環境(Github Actions) でこのスクリプトを実行した場合、フォーマットのチェックが行われます。
 
 以下のコマンドで実行します。
 
 ```bash
 $ cd /path/to/infra-testing-google-sample
-$ scripts/tflint.sh
+$ ./scripts/tffmt.sh
+```
+
+## tflint.sh
+
+全 HCL ファイルに対する静的チェックを tfLint コマンドで実行するためのスクリプトです。
+
+以下のコマンドで実行します。
+
+```bash
+$ cd /path/to/infra-testing-google-sample
+$ ./scripts/tflint.sh
+```
+
+## tfvalidate.sh
+
+全 HCL ファイルに対して terraform validate コマンドを実行するためのスクリプトです。
+
+以下のコマンドで実行します。
+
+```bash
+$ cd /path/to/infra-testing-google-sample
+$ ./scripts/tfvalidate.sh
 ```
