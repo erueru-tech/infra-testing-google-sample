@@ -1,5 +1,6 @@
 modules1:
   - network
   - github
+  - storage
 modules2:
   - db

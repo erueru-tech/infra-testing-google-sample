@@ -1,9 +1,7 @@
 name: stg
 
 on:
-  # FIXME 後で消す
   # pull_request.types: [closed] ... PRがクローズされた際に実行(ジョブ側のif条件との組み合わせで、PRマージのタイミングでのみ実行される)
-  workflow_dispatch:
   pull_request:
     branches:
       - main
