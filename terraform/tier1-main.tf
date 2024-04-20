@@ -46,7 +46,8 @@ module "network" {
 }
 
 module "storage" {
-  source  = "../../../modules/storage"
-  service = var.service
-  env     = var.env
+  source             = "../../../modules/storage"
+  service            = var.service
+  env                = var.env
+  sample_bucket_name = "${local.project_id}-sample-bucket"
 }
