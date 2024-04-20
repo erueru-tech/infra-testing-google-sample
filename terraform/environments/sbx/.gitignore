@@ -1,1 +1,2 @@
 #sbx-tier*.auto.tfvars
+.terraform.lock.hcl
