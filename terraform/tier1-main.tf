@@ -44,3 +44,9 @@ module "network" {
   subnet_ip               = var.subnet_ip
   peering_network_address = var.peering_network_address
 }
+
+module "storage" {
+  source  = "../../../modules/storage"
+  service = var.service
+  env     = var.env
+}
