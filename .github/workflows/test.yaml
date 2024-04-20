@@ -12,6 +12,7 @@ on:
 # ワークフローの同時実行数を1にするための設定
 # 複数のPRからterraform applyやterraform testが同時実行されないようにする
 # groupの値をstg.yamlやprod.yamlでも同じにすると、全環境で1度に1つのワークフローしか実行できなくなるで注意
+# (ただしstagingのapply中にこのワークフローを実行すると、plan時にロックが取得できずにエラーが出るのでその辺りの取り扱いはポリシー次第)
 # cancel-in-progress:falseにすると既に実行済みのワークフローの実行が完了するまで、後続のワークフローは待機するようになる
 # cancel-in-progress:trueにすると既に実行済みのワークフローをキャンセルして、後続のワークフローを開始する
 concurrency:
