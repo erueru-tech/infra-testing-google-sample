@@ -71,7 +71,7 @@ run "assert_tier_2" {
   command = plan
   variables {
     vpc_id = "projects/infra-testing-google-sample-test/global/networks/sample-vpc"
-    tier = "db-n1-standard-1"
+    tier   = "db-n1-standard-1"
   }
 }
 
@@ -81,7 +81,7 @@ run "assert_tier_3" {
   command = plan
   variables {
     vpc_id = "projects/infra-testing-google-sample-test/global/networks/sample-vpc"
-    tier = "db-n1-highmem-2"
+    tier   = "db-n1-highmem-2"
   }
   expect_failures = [
     var.tier,
@@ -104,7 +104,7 @@ run "assert_availability_type_1" {
 run "assert_availability_type_2" {
   command = plan
   variables {
-    vpc_id = "projects/infra-testing-google-sample-test/global/networks/sample-vpc"
+    vpc_id            = "projects/infra-testing-google-sample-test/global/networks/sample-vpc"
     availability_type = "REGIONAL"
   }
 }
@@ -113,7 +113,7 @@ run "assert_availability_type_2" {
 run "assert_availability_type_3" {
   command = plan
   variables {
-    vpc_id = "projects/infra-testing-google-sample-test/global/networks/sample-vpc"
+    vpc_id            = "projects/infra-testing-google-sample-test/global/networks/sample-vpc"
     availability_type = "GLOBAL"
   }
   expect_failures = [

@@ -1,0 +1,39 @@
+name: slack
+description: send workflow result to slack channel
+
+inputs:
+  conclusion:
+    description: the outcome of the jobs (e.g. 'success', 'failure')
+    required: true
+  channel_id:
+    description: Slack channel ID
+    required: true
+  webhook_url:
+    description: SLACK_WEBHOOK_URL
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: send workflow result to slack channel
+      # slackapi/slack-github-actionはコミットハッシュによる指定ができないのでバージョンで固定
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: ${{ inputs.channel_id }}
+        payload: |
+          {
+            "color": "${{ inputs.conclusion == 'success' && '#36a64f' || '#f26268' }}",
+            "pretext": "",
+            "text": "*[workflow]*\n${{ env.WORKFLOW }}\n\n*[title]*\n${{ env.PR_TITLE }}\n\n*[action url]*\n${{ env.ACTION_URL }}\n\n*[pull request url]*\n${{ env.PR_URL }}"
+          }
+      env:
+        # PRタイトルなどの任意入力可能な値は、シェルやTypeScript実行ステップで参照するとインジェクション攻撃に使用されるケースがある
+        # これは環境変数を間に挟むことで無害化できる
+        # ref. https://docs.github.com/ja/actions/security-guides/security-hardening-for-github-actions#good-practices-for-mitigating-script-injection-attacks
+        # ちなみに上記ケースではスクリプトを実行しているわけではない気もするが念のため
+        # またインジェクション攻撃ができないgithub.event.head_commit.urlなども環境変数で定義しているが統一感のため
+        WORKFLOW: ${{ github.workflow }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_URL: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}
+        ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}

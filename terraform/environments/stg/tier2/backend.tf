@@ -9,7 +9,7 @@ terraform {
     # sandbox環境は直書きしても問題ないが、自分用の環境のバケット設定を維持するためにこのフォルダ内の.gitignoreに
     # backend.tf(このファイル)を指定するなどしてGit管理されないようにする
 
-    bucket  = "your-terraform-bucket-name"
-    prefix  = "terraform/tier2-state"
+    bucket = "your-terraform-bucket-name"
+    prefix = "terraform/tier2-state"
   }
 }

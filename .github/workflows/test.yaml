@@ -1,0 +1,167 @@
+name: test
+
+# workflow_dispatch ... Github Actionsのコンソール上からワークフローを実行出来るようにするする設定
+# pull_request.types: [opened, synchronize] ... PR作成時、コミットプッシュ時にワークフローを実行
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+# ワークフローの同時実行数を1にするための設定
+# 複数のPRからterraform applyやterraform testが同時実行されないようにする
+# groupの値をstg.yamlやprod.yamlでも同じにすると、全環境で1度に1つのワークフローしか実行できなくなるで注意
+# cancel-in-progress:falseにすると既に実行済みのワークフローの実行が完了するまで、後続のワークフローは待機するようになる
+# cancel-in-progress:trueにすると既に実行済みのワークフローをキャンセルして、後続のワークフローを開始する
+concurrency:
+  group: test
+  cancel-in-progress: false
+
+# すべてのアクセス許可を無効に設定
+permissions: {}
+
+jobs:
+  validation:
+    runs-on: ubuntu-22.04
+    steps:
+      # プロジェクトのチェックアウト(ジョブ毎に実行必須)
+      - name: checkout project
+        # @vXのようなバージョン指定にすると、最新バージョンでセキュリティ的に問題があるアクションを意図せず使用してしまう可能性がある
+        # よって@vX.Y.Zにすればリスクは軽減するが、それでもバージョンは自由に作り直せるのでより厳密にコミットハッシュを指定
+        # v4.1.1 ref. https://github.com/actions/checkout/releases/tag/v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      # テストコード実行対象モジュールリストを定義する.github/data/test_matrix.yamlとterraform/modulesディレクトリが
+      # 同期されている状態かチェックするスクリプトを実行
+      - name: check test_matrix.yaml
+        run: |
+          ./scripts/check_test_matrix.sh
+
+      # terraform CLIをインストール
+      - name: install terraform CLI
+        uses: ./.github/actions/setup
+        with:
+          auth_gcloud: "false"
+
+      # environmentsやmodules配下のHCLファイルが格納されているディレクトリ全てでterraform fmt -checkコマンドを実行
+      - name: run terraform fmt
+        run: |
+          ./scripts/tffmt.sh
+
+      # environmentsやmodules配下のHCLファイルが格納されているディレクトリ全てでtflintコマンドを実行
+      - name: run TFLint
+        run: |
+          # TFLintをインストール(アクションのバージョンアップの際に忘れてはいけない)
+          # なおこのスクリプトが万が一にもGCPにアクセス出来ないよう、validationとtest-prepでジョブを分けている
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/v0.50.3/install_linux.sh | bash
+          ./scripts/tflint.sh
+
+      # environmentsやmodules配下のHCLファイルが格納されているディレクトリ全てでterraform validateコマンドを実行
+      - name: run terraform validate
+        run: |
+          ./scripts/tfvalidate.sh
+
+  test-prep:
+    needs: validation
+    runs-on: ubuntu-22.04
+    # gcloudの認証で使用するWorkload Identity Providerで必要なパーミッション
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      # terraform CLIのインストールおよびgcloudの認証を実行
+      - name: setup terraform and gcloud CLI
+        uses: ./.github/actions/setup
+        with:
+          workload_identity_provider: ${{ secrets.TEST_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.TEST_SERVICE_ACCOUNT }}
+
+      # テストコードの依存関係解決に使われるtier1ディレクトリのHCLをプロビジョニング
+      - name: run apply command to tier1 in test
+        run: |
+          ./terraform/environments/test/tier1/apply.sh
+        env:
+          TF_VAR_service: ${{ secrets.TEST_SERVICE }}
+          TF_VAR_env: test
+
+  test:
+    needs: test-prep
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+    # テストコードはジョブレベルで並列実行
+    # 各ジョブで実行されるモジュールのリストはtest_matrix.yamlにて手動で設定している
+    # (テスト実行時間をジョブ間で均等に振り分けるため)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [modules1, modules2]
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: setup terraform and gcloud CLI
+        uses: ./.github/actions/setup
+        with:
+          workload_identity_provider: ${{ secrets.TEST_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.TEST_SERVICE_ACCOUNT }}
+
+      # 各ジョブが担当するモジュールのテストコードを実行
+      - name: run tests
+        run: |
+          while IFS= read MODULE; do
+            ./terraform/modules/$MODULE/test.sh
+          done <<< "$(yq -r .${{ matrix.shard }}[] ./.github/data/test_matrix.yaml)"
+        env:
+          TF_VAR_service: ${{ secrets.TEST_SERVICE }}
+          TF_VAR_env: test
+
+  plan:
+    needs: test
+    runs-on: ubuntu-22.04
+    # 'pull-requests: write'はアクションからPRにコメントを書き込む際に必要
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: setup terraform and gcloud CLI
+        uses: ./.github/actions/setup
+        with:
+          workload_identity_provider: ${{ secrets.STG_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.STG_SERVICE_ACCOUNT }}
+
+      # staging環境に対してterraform planコマンドを実行して、実行結果サマリをPRコメントに出力
+      - name: run terraform plan in stg
+        uses: ./.github/actions/tfcmd
+        with:
+          service: ${{ secrets.STG_SERVICE }}
+          env: stg
+          command: plan
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+
+  slack:
+    if: always()
+    runs-on: ubuntu-22.04
+    needs: plan
+    permissions:
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      # ワークフローの実行結果をSlackの指定したチャネルに通知
+      - name: send the workflow result to the slack channel
+        uses: ./.github/actions/slack
+        with:
+          conclusion: ${{ needs.plan.result }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

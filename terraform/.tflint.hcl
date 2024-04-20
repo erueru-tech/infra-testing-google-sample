@@ -9,14 +9,6 @@ plugin "google" {
   source  = "github.com/terraform-linters/tflint-ruleset-google"
 }
 
-# ref. https://github.com/terraform-linters/tflint-ruleset-opa
-# Policy files are placed under ~/.tflint.d/policies or ./.tflint.d/policies.
-plugin "opa" {
-  enabled = true
-  version = "0.6.0"
-  source  = "github.com/terraform-linters/tflint-ruleset-opa"
-}
-
 # resource名はスネークケース表記にする必要がある
 rule "terraform_naming_convention" {
   enabled = true
@@ -27,7 +19,8 @@ rule "terraform_comment_syntax" {
   enabled = true
 }
 
-# このプロジェクトのフォルダ構成でこのルールを満たすのは不可能なので無効化
+# terraformブロック内にrequired_versionを宣言しなければいけない
+# なお、このプロジェクトのフォルダ構成で、このルールを満たすのは不可能なので無効化
 rule "terraform_required_version" {
   enabled = false
 }

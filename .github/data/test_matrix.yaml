@@ -1,0 +1,5 @@
+modules1:
+  - network
+  - github
+modules2:
+  - db

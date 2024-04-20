@@ -2,7 +2,7 @@
 run "assert_network_name_1" {
   command = plan
   variables {
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
     peering_network_address = "10.3.102.0"
   }
   assert {
@@ -15,7 +15,7 @@ run "assert_network_name_1" {
 run "assert_subnet_name_1" {
   command = plan
   variables {
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
     peering_network_address = "10.3.102.0"
   }
   assert {
@@ -39,7 +39,7 @@ run "assert_subnet_ip_1" {
 run "assert_subnet_ip_2" {
   command = plan
   variables {
-    subnet_ip = "10.3.101.2" # error
+    subnet_ip               = "10.3.101.2" # error
     peering_network_address = "10.3.102.0"
   }
   expect_failures = [
@@ -51,7 +51,7 @@ run "assert_subnet_ip_2" {
 run "assert_subnet_ip_3" {
   command = plan
   variables {
-    subnet_ip = "10.3.101.2/32" # error
+    subnet_ip               = "10.3.101.2/32" # error
     peering_network_address = "10.3.102.0"
   }
   expect_failures = [
@@ -76,7 +76,7 @@ run "assert_peering_network_address_2" {
   command = plan
   variables {
     peering_network_address = "10.3.102.1" # error
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
   }
   expect_failures = [
     var.peering_network_address,
@@ -88,7 +88,7 @@ run "assert_peering_network_address_3" {
   command = plan
   variables {
     peering_network_address = "10.3.102.0/24" # error
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
   }
   expect_failures = [
     var.peering_network_address,
@@ -100,7 +100,7 @@ run "assert_peering_network_address_4" {
   command = plan
   variables {
     peering_network_address = "10.0.102.0" # error
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
   }
   expect_failures = [
     var.peering_network_address,
@@ -111,7 +111,7 @@ run "assert_peering_network_address_5" {
   command = plan
   variables {
     peering_network_address = "10.5.102.0" # error
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
   }
   expect_failures = [
     var.peering_network_address,
@@ -122,7 +122,7 @@ run "assert_peering_network_address_6" {
   command = plan
   variables {
     peering_network_address = "10.3.0.0" # error
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
   }
   expect_failures = [
     var.peering_network_address,
@@ -133,7 +133,7 @@ run "assert_peering_network_address_7" {
   command = plan
   variables {
     peering_network_address = "10.3.255.0" # error
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
   }
   expect_failures = [
     var.peering_network_address,
@@ -145,7 +145,7 @@ run "assert_peering_network_address_7" {
 run "assert_peering_ip_range_name_1" {
   command = plan
   variables {
-    subnet_ip = "10.3.101.0/24"
+    subnet_ip               = "10.3.101.0/24"
     peering_network_address = "10.3.102.0"
   }
   assert {

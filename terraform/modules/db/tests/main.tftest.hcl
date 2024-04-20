@@ -17,6 +17,6 @@ run "apply_db" {
   # MySQL接続用ユーザのパスワードが32文字であることを確認
   assert {
     condition     = length(nonsensitive(output.mysql_main_user_password)) == 32
-    error_message = "The length of the output.mysql_main_user_password must be 32."
+    error_message = "The length of the output.mysql_main_user_password value must be 32."
   }
 }

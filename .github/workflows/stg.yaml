@@ -1,0 +1,61 @@
+name: stg
+
+on:
+  # FIXME 後で消す
+  # pull_request.types: [closed] ... PRがクローズされた際に実行(ジョブ側のif条件との組み合わせで、PRマージのタイミングでのみ実行される)
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+concurrency:
+  group: stg
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  # PRマージが行われたタイミングでstaging環境へterraform applyを実行
+  # なお'== true'を消したくなるが、思わぬ挙動に遭遇するケースがあるので慣例に従った方がいい
+  apply:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: setup terraform and gcloud CLI
+        uses: ./.github/actions/setup
+        with:
+          workload_identity_provider: ${{ secrets.STG_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.STG_SERVICE_ACCOUNT }}
+
+      - name: run terraform apply in stg
+        uses: ./.github/actions/tfcmd
+        with:
+          service: ${{ secrets.STG_SERVICE }}
+          env: stg
+          command: apply -auto-approve
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+
+  slack:
+    if: always() && github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+    needs: apply
+    permissions:
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: send the workflow result to the slack channel
+        uses: ./.github/actions/slack
+        with:
+          conclusion: ${{ needs.apply.result }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
