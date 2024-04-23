@@ -29,6 +29,7 @@ provider "google-beta" {
 }
 
 locals {
+  # 自身のリポジトリの情報に置き換える必要がある
   github_account_name = "erueru-tech"
   github_repo_name    = "infra-testing-google-sample"
   project_id          = join("-", [var.service, var.env])
