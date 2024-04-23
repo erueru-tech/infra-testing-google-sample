@@ -39,7 +39,7 @@ jobs:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
 
   slack:
-    if: github.event.pull_request.merged == true
+    if: always() && github.event.pull_request.merged == true
     runs-on: ubuntu-22.04
     needs: apply
     permissions:
