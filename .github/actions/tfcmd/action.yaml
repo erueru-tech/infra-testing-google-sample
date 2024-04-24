@@ -39,6 +39,8 @@ runs:
           output=$(grep --color=none -E "[0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy|No changes" /tmp/${tier}_tfcmd.log | sed -r "s/\x1B\[[0-9;]*[mGK]//g")
           echo "${tier}_output=${output}" >> $GITHUB_OUTPUT
         done
+        # workflow_dispatchトリガー経由でもPR番号を取得できるようワークアラウンドを実行
+        echo "pr_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")" >> $GITHUB_OUTPUT
 
     - name: comment result of terraform run to pull request
       # v7.0.1 ref. https://github.com/actions/github-script/releases/tag/v7.0.1
@@ -46,16 +48,18 @@ runs:
       env:
         TIER1_OUTPUT: ${{ steps.tfcmd_run.outputs.tier1_output }}
         TIER2_OUTPUT: ${{ steps.tfcmd_run.outputs.tier2_output }}
+        PR_NUMBER: ${{ steps.tfcmd_run.outputs.pr_number }}
         ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       with:
         github-token: ${{ inputs.gh_token }}
         script: |
           // 既にterraformコマンド実行結果のコメントが投稿済みか確認
           // copied below code from https://developer.hashicorp.com/terraform/tutorials/automation/github-actions#review-actions-workflows
+          console.log(`GITHUB_REF:${process.env.GITHUB_REF}`)
           const { data: comments } = await github.rest.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.issue.number,
+            issue_number: process.env.PR_NUMBER,
           });
           const title = "${{ inputs.env }}$ terraform ${{ inputs.command }}";
           const botComment = comments.find(comment => {
