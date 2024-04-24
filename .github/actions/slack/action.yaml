@@ -17,14 +17,39 @@ runs:
   steps:
     - name: send workflow result to slack channel
       # slackapi/slack-github-actionはコミットハッシュによる指定ができないのでバージョンで固定
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v1.26.0
       with:
         channel-id: ${{ inputs.channel_id }}
         payload: |
           {
-            "color": "${{ inputs.conclusion == 'success' && '#36a64f' || '#f26268' }}",
-            "pretext": "",
-            "text": "*[workflow]*\n${{ env.WORKFLOW }}\n\n*[title]*\n${{ env.PR_TITLE }}\n\n*[action url]*\n${{ env.ACTION_URL }}\n\n*[pull request url]*\n${{ env.PR_URL }}"
+            "attachments": [
+              {
+                "pretext": "",
+                "color": "${{ inputs.conclusion == 'success' && '36a64f' || 'f26268' }}",
+                "fields": [
+                  {
+                    "title": "Workflow",
+                    "short": true,
+                    "value": "${{ env.WORKFLOW }}"
+                  },
+                  {
+                    "title": "Action URL",
+                    "short": true,
+                    "value": "${{ env.ACTION_URL }}"
+                  },
+                  {
+                    "title": "Title",
+                    "short": true,
+                    "value": "${{ env.PR_TITLE }}"
+                  },
+                  {
+                    "title": "Pull Request URL",
+                    "short": true,
+                    "value": "${{ env.PR_URL }}"
+                  }
+                ]
+              }
+            ]
           }
       env:
         # PRタイトルなどの任意入力可能な値は、シェルやTypeScript実行ステップで参照するとインジェクション攻撃に使用されるケースがある
@@ -37,3 +62,4 @@ runs:
         PR_URL: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}
         ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
