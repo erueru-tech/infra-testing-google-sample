@@ -1,0 +1,6 @@
+# test_deny_terraform_naming_convention1のテスト用
+rule:
+  - terraform_naming_convention:
+    enabled: false
+  - terraform_comment_syntax:
+    enabled: false

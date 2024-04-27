@@ -23,6 +23,9 @@ permissions: {}
 env:
   # v0.50.3 ref. https://github.com/terraform-linters/tflint/releases/tag/v0.50.3
   TFLINT_VERSION: e34bda7f398c139d7bc528261ee96998c10e79c8
+  OPA_VERSION: 0.64.1
+  CONFTEST_VERSION: 0.51.0
+  REGAL_VERSION: 0.21.3
 
 jobs:
   validation:
@@ -41,10 +44,56 @@ jobs:
         run: |
           ./scripts/check_test_matrix.sh
 
+      # opa CLIをインストール
+      - name: install opa CLI
+        # v2.2.0 ref. https://github.com/open-policy-agent/setup-opa/releases/tag/v2.2.0
+        uses: open-policy-agent/setup-opa@34a30e8a924d1b03ce2cf7abe97250bbb1f332b5
+        with:
+          version: ${{ env.OPA_VERSION }}
+
+      # Regoファイルのフォーマットをチェック
+      - name: run opa fmt
+        run: |
+          ./scripts/opafmt.sh
+
+      # regal CLIをインストール
+      - name: install regal CLI
+        # v1.0.0 ref. https://github.com/StyraInc/setup-regal/releases/tag/v1.0.0
+        uses: StyraInc/setup-regal@33a142b1189004e0f14bf42b15972c67eecce776
+        with:
+          version: ${{ env.REGAL_VERSION }}
+
+      # Regoファイルに対してリンタを実行
+      - name: run regal lint
+        run: |
+          ./scripts/regal.sh
+
+      # 既にインストール済みのConftestがキャッシュに存在する場合restore
+      - name: cache conftest CLI
+        id: conftest-cache
+        # v4.0.2 ref. https://github.com/actions/cache/releases/tag/v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+        with:
+          path: /usr/local/bin/conftest
+          key: conftest-${{ env.CONFTEST_VERSION }}
+
+      # キャッシュにConftestが存在しない場合インストール
+      - name: install conftest if the cache doesn't exist
+        if: steps.conftest-cache.outputs.cache-hit != 'true'
+        run: |
+          CONFTEST_FILE=conftest_${{ env.CONFTEST_VERSION }}_$(uname)_$(arch).tar.gz
+          wget "https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/${CONFTEST_FILE}"
+          tar xzf ${CONFTEST_FILE}
+          sudo mv conftest /usr/local/bin
+
+      # Conftestを使用してプロジェクト内の全設定ファイルの定義がポリシーに適合しているかチェック
+      - name: run conftest
+        run: |
+          ./scripts/conftest.sh
+
       # 既にインストール済みのTFLintがキャッシュに存在する場合restore
       - name: cache tflint CLI
         id: tflint-cache
-        # v4.0.2 ref. https://github.com/actions/cache/releases/tag/v4.0.2
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |

@@ -15,5 +15,6 @@ terraform init -backend-config="bucket=$TF_VAR_service-$TF_VAR_env-terraform" -u
 if [[ -z ${CI:-} ]]; then
   terraform destroy
 else
-  terraform destroy -auto-approve
+  echo "It doesn't allow running terraform destroy on CI/CD."
+  exit 1
 fi

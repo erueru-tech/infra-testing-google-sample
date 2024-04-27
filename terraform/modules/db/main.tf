@@ -56,6 +56,5 @@ module "sql_db" {
   # なおシステムの移行などで移行後にインスタンスを削除したい場合は、この値をfalseにしてから削除する流れになると思われる
   deletion_protection         = var.deletion_protection
   deletion_protection_enabled = var.deletion_protection
-  # 作成に20分以上かかるケースがあり、デフォルトの30mだと不足するケースが発生しそうであるため
-  create_timeout = "60m"
+  create_timeout              = "60m"
 }

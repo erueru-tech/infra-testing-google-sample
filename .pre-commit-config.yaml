@@ -1,5 +1,6 @@
 # ref. https://pre-commit.com/#plugins
 
+# 特定のhookでエラーが発生した時点でエラー終了
 fail_fast: true
 
 repos:
@@ -11,6 +12,7 @@ repos:
       - id: check-toml
       - id: check-yaml
 
+  # test
   - repo: local
     hooks:
       - id: test-matrix
@@ -19,27 +21,44 @@ repos:
         language: system
         always_run: true
 
+  # opa
+  - repo: local
+    hooks:
+      - id: opa-fmt
+        name: run opa fmt
+        entry: ./scripts/opafmt.sh
+        language: system
+        files: (\.rego)$
+      - id: regal-lint
+        name: run regal lint
+        entry: ./scripts/regal.sh
+        language: system
+        files: (\.rego)$
+      - id: conftest
+        name: run conftest
+        entry: ./scripts/conftest.sh
+        language: system
+        always_run: true
+
+  # terraform
   - repo: local
     hooks:
       - id: terraform-fmt
         name: run terraform fmt
         entry: ./scripts/tffmt.sh
         language: system
-        always_run: true
-
-  - repo: local
-    hooks:
+        files: (\.tf|\.tfvars|\.hcl)$
+        exclude: \.terraform\/.*$
       - id: tflint
         name: run tflint
         entry: ./scripts/tflint.sh
         language: system
-        always_run: true
-
-  # チェックに1分以上かかるのでCIに任せる
-  # - repo: local
-  #   hooks:
-  #     - id: terraform-validate
-  #       name: run terraform validate
-  #       entry: ./scripts/tfvalidate.sh
-  #       language: system
-  #       always_run: true
+        files: (\.tf|\.tfvars|\.hcl)$
+        exclude: \.terraform\/.*$
+      # チェックに1分以上かかるのでCIに任せる
+      # - id: terraform-validate
+      #   name: run terraform validate
+      #   entry: ./scripts/tfvalidate.sh
+      #   language: system
+      #   files: (\.tf|\.tfvars|\.hcl)$
+      #   exclude: \.terraform\/.*$

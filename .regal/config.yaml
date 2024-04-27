@@ -1,0 +1,37 @@
+rules:
+  # Conftestによる設定ファイルのチェックではentrypointは不要
+  # ref. https://docs.styra.com/regal/rules/idiomatic/no-defined-entrypoint
+  idiomatic:
+    no-defined-entrypoint:
+      level: ignore
+  # テストコードのパッケージ名に_testを付けるメリットを開発時に感じられないためignore
+  # ref. https://docs.styra.com/regal/rules/testing/test-outside-test-package
+  testing:
+    test-outside-test-package:
+      level: ignore
+  custom:
+    # パッケージ名やルール名、関数名の命名規約を定義
+    # ref. https://docs.styra.com/regal/rules/custom/naming-convention
+    naming-convention:
+      level: error
+      conventions:
+        # パッケージ名は'conftest'から始まらなければいけない
+        - pattern: "conftest(.*)$"
+          targets:
+            - package
+        # ルール名、関数名は英小文字、数字、アンダースコアのみ利用可能
+        - pattern: "^[_a-z0-9]+$"
+          targets:
+            - rule
+            - function
+    # ワンライナーでルールを記述可能なケースで記述していない場合にerrorとなる
+    # ref. https://docs.styra.com/regal/rules/custom/one-liner-rule
+    one-liner-rule:
+      level: error
+
+# OPAのどのバージョンの構文を元にチェックを行うか指定
+# なおopaの最新バージョンを利用できるようになるまで一定のラグがある
+capabilities:
+  from:
+    engine: opa
+    version: v0.63.0

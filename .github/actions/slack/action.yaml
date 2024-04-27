@@ -58,8 +58,8 @@ runs:
         # ちなみに上記ケースではスクリプトを実行しているわけではない気もするが念のため
         # またインジェクション攻撃ができないgithub.event.head_commit.urlなども環境変数で定義しているが統一感のため
         WORKFLOW: ${{ github.workflow }}
+        ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         PR_URL: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}
-        ACTION_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
