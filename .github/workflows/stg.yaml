@@ -1,7 +1,7 @@
 name: stg
 
 on:
-  # pull_request.types: [closed] ... PRがクローズされた際に実行(ジョブ側のif条件との組み合わせで、PRマージのタイミングでのみ実行される)
+  # PRがクローズされた際に実行(ジョブ側のif条件との組み合わせで、PRマージのタイミングでのみ実行される)
   pull_request:
     branches:
       - main

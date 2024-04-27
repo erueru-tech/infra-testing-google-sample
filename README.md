@@ -107,13 +107,13 @@ $ ./apply_destroy.sh destroy
 
 このプロジェクトの開発では以下のツールを利用しています。
 
-各ツールのインストールの手順は公式ドキュメントを参照してください。
+- [tfenv](https://github.com/tfutils/tfenv?tab=readme-ov-file#installation) v3.0.0
+- [TFLint](https://github.com/terraform-linters/tflint?tab=readme-ov-file#installation) 0.50.3
+- [pre-commit](https://pre-commit.com/#install) v3.7.0
+- [jq](https://github.com/jqlang/jq?tab=readme-ov-file#installation) 1.6
+- [yq](https://github.com/mikefarah/yq?tab=readme-ov-file#install) 4.43.1
 
-- [tfenv](https://github.com/tfutils/tfenv?tab=readme-ov-file#installation)
-- [TFLint](https://github.com/terraform-linters/tflint?tab=readme-ov-file#installation)
-- [pre-commit](https://pre-commit.com/#install)
-- [jq](https://github.com/jqlang/jq?tab=readme-ov-file#installation)
-- [yq](https://github.com/mikefarah/yq?tab=readme-ov-file#install)
+各ツールのインストール手順は公式ドキュメントを参照してください。
 
 ## バージョン
 

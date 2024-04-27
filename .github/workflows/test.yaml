@@ -20,6 +20,10 @@ concurrency:
 # すべてのアクセス許可を無効に設定
 permissions: {}
 
+env:
+  # v0.50.3 ref. https://github.com/terraform-linters/tflint/releases/tag/v0.50.3
+  TFLINT_VERSION: e34bda7f398c139d7bc528261ee96998c10e79c8
+
 jobs:
   validation:
     runs-on: ubuntu-22.04
@@ -37,12 +41,28 @@ jobs:
         run: |
           ./scripts/check_test_matrix.sh
 
-      # environmentsやmodules配下のHCLファイルが格納されているディレクトリ全てでtflintコマンドを実行
-      - name: run TFLint
+      # 既にインストール済みのTFLintがキャッシュに存在する場合restore
+      - name: cache tflint CLI
+        id: tflint-cache
+        # v4.0.2 ref. https://github.com/actions/cache/releases/tag/v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+        with:
+          path: |
+            /usr/local/bin/tflint
+            ~/.tflint.d/
+          key: tflint-${{ env.TFLINT_VERSION }}-${{ hashFiles('terraform/.tflint.hcl') }}
+
+      # キャッシュにTFLintが存在しない場合インストール
+      - name: install tflint if the cache doesn't exist
+        if: steps.tflint-cache.outputs.cache-hit != 'true'
         run: |
-          # TFLintをインストール(アクションのバージョンアップの際に忘れてはいけない)
-          # なおこのスクリプトが万が一にもGCPにアクセス出来ないよう、validationとtest-prepでジョブを分けている
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/v0.50.3/install_linux.sh | bash
+          # このスクリプトが万が一にもGCPにアクセス出来ないようvalidationとtest-prepでジョブを分けている
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/${{ env.TFLINT_VERSION }}/install_linux.sh | sudo bash
+          cd terraform && tflint --init
+
+      # environmentsやmodules配下のHCLファイルが格納されているディレクトリ全てでtflintコマンドを実行
+      - name: run tflint
+        run: |
           ./scripts/tflint.sh
 
       # terraform CLIをインストール
