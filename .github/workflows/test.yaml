@@ -1,9 +1,7 @@
 name: test
 
-# workflow_dispatch ... Github Actionsのコンソール上からワークフローを実行出来るようにするする設定
-# pull_request.types: [opened, synchronize] ... PR作成時、コミットプッシュ時にワークフローを実行
+# PR作成時、コミットプッシュ時にワークフローを実行
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - main
