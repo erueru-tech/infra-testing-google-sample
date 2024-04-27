@@ -12,7 +12,10 @@ export TF_VAR_service=infra-testing-google-sample
 export TF_VAR_env=test
 
 # install plugins
-(cd $ROOT_DIR/terraform && tflint --init)
+# CI環境ではキャッシュする必要があることからワークフロー側で実行するようにしている
+if [[ -z ${CI:-} ]]; then
+  (cd $ROOT_DIR/terraform && tflint --init)
+fi
 
 # environments
 while IFS= read ENV_DIR; do
