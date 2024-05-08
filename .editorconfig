@@ -1,0 +1,8 @@
+# Github上でRegoのコードを表示する際にデフォルトだとインデント幅が8スペースになって見辛いので以下を設定
+# ref. https://docs.styra.com/regal/rules/style/opa-fmt#rationale
+[*.rego]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+indent_style = tab
+indent_size = 2

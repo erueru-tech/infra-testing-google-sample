@@ -1,0 +1,9 @@
+# ポリシーファイル(Rego)がまとめられているディレクトリパス(ルートから相対パスで指定)
+# デフォルト値は"policy"
+policy = "policies"
+# FIXME dataディレクトリを実際使用することになったらアンコメント
+# Regoのプログラム内で、必要に応じて使うデータ(JSON、YAML等)がまとめられているディレクトリのパス
+#data = "policies/data"
+# ポリシーのテスト対象から除外するファイル、ディレクトリ
+# .gitや.terraformに生成されるファイルは自分で作ったファイルではないのでチェックから除外
+ignore = ".git/|.terraform/|LICENSE"

@@ -133,6 +133,48 @@ $ ./scripts/create_terraform_module_template.sh app
 
 テストコード実行対象モジュールを定義する [.github/data/test_matrix.yaml](../.github/data/test_matrix.yaml) が [modules](../terraform/modules/) ディレクトリと同期されている状態かチェックするスクリプトです。
 
+以下のコマンドで実行します。
+
+```bash
+$ cd /path/to/infra-testing-google-sample
+$ ./scripts/check_test_matrix.sh
+```
+
+## opafmt.sh
+
+Rego ファイルに対してフォーマットを実行するためのスクリプトです。
+
+CI 環境(Github Actions) でこのスクリプトを実行した場合、フォーマットのチェックが行われます。
+
+以下のコマンドで実行します。
+
+```bash
+$ cd /path/to/infra-testing-google-sample
+$ ./scripts/opafmt.sh
+```
+
+## regal.sh
+
+Rego ファイルに対する静的チェックを regal lint コマンドで実行するためのスクリプトです。
+
+以下のコマンドで実行します。
+
+```bash
+$ cd /path/to/infra-testing-google-sample
+$ ./scripts/regal.sh
+```
+
+## conftest.sh
+
+プロジェクト内の全設定ファイルに対してポリシーテストを実行するためのスクリプトです。
+
+以下のコマンドで実行します。
+
+```bash
+$ cd /path/to/infra-testing-google-sample
+$ ./scripts/conftest.sh
+```
+
 ## tffmt.sh
 
 全 HCL ファイルに対してフォーマットを実行するためのスクリプトです。
