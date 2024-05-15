@@ -1,0 +1,9 @@
+# avd-gcp-0001を除外したい場合、大文字でAVD-GCP-0001と指定しないと除外できない
+# コードに`#trivy:ignore`コメントを追加することでも特定のルールチェックを行わないようにすることが可能
+misconfigurations:
+
+secrets:
+
+vulnerabilities:
+
+licenses:

@@ -113,6 +113,7 @@ $ ./apply_destroy.sh destroy
 - [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa) v0.64.1
 - [Regal](https://github.com/StyraInc/regal?tab=readme-ov-file#download-regal) v0.21.3
 - [Conftest](https://www.conftest.dev/install/) v0.51.0
+- [Trivy](https://aquasecurity.github.io/trivy/latest/getting-started/installation/) v0.51.1
 - [jq](https://github.com/jqlang/jq?tab=readme-ov-file#installation) 1.6
 - [yq](https://github.com/mikefarah/yq?tab=readme-ov-file#install) 4.43.1
 
