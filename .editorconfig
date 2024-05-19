@@ -1,3 +1,7 @@
+# 慣例的にプロジェクトルートの.editorconfigに設定する値
+# EditorConfigは階層を遡って.editorconfigを探索していき、root=trueが設定されているファイルに到達したら探索を終了する
+root = true
+
 # Github上でRegoのコードを表示する際にデフォルトだとインデント幅が8スペースになって見辛いので以下を設定
 # ref. https://docs.styra.com/regal/rules/style/opa-fmt#rationale
 [*.rego]
@@ -6,3 +10,4 @@ insert_final_newline = true
 charset = utf-8
 indent_style = tab
 indent_size = 2
+max_line_length = 120

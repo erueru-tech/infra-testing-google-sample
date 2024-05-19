@@ -2,7 +2,7 @@ package conftest.terraform.tflint
 
 import rego.v1
 
-# ファイル名が.tflint.hclではない場合ルール違反になるようなデータ構造でルールにパスする
+# ファイル名が.tflint.hclだとルール違反になるようなデータ構造を別ファイル名(.tflint.yaml)で渡した場合はルール違反にならない
 test_deny_terraform_naming_convention1 if {
 	cfg := parse_config_file("./.tflint.yaml")
 	count(deny_terraform_naming_convention) == 0 with input as cfg
