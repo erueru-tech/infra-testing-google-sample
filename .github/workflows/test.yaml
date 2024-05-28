@@ -26,6 +26,7 @@ env:
   OPA_VERSION: 0.64.1
   CONFTEST_VERSION: 0.51.0
   REGAL_VERSION: 0.21.3
+  TRIVY_VERSION: 0.51.1
 
 jobs:
   validation:
@@ -113,6 +114,25 @@ jobs:
       - name: run tflint
         run: |
           ./scripts/tflint.sh
+
+      # 既にインストール済みのTtrivyがキャッシュに存在する場合restore
+      - name: cache trivy CLI
+        id: trivy-cache
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+        with:
+          path: |
+            /usr/local/bin/trivy
+          key: trivy-${{ env.TRIVY_VERSION }}
+
+      # キャッシュにTrivyが存在しない場合インストール
+      - name: install trivy if the cache doesn't exist
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v${{ env.TRIVY_VERSION }}
+
+      # Trivyによるセキュリティスキャンを実行
+      - name: run trivy
+        run: |
+          ./scripts/trivy.sh
 
       # terraform CLIをインストール
       - name: install terraform CLI

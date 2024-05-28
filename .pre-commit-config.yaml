@@ -62,3 +62,13 @@ repos:
       #   language: system
       #   files: (\.tf|\.tfvars|\.hcl)$
       #   exclude: \.terraform\/.*$
+
+  # trivy
+  - repo: local
+    hooks:
+      # 脆弱性DBのアップデートなどが発生する場合、チェックに時間がかかるので必要に応じてCIに任せる
+      - id: trivy
+        name: run trivy
+        entry: ./scripts/trivy.sh
+        language: system
+        always_run: true

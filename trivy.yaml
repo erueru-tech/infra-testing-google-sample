@@ -1,0 +1,21 @@
+# ref. https://aquasecurity.github.io/trivy/v0.51/docs/references/configuration/config-file/
+
+# Report Options #
+# Trivyで問題を検知した場合にエラー終了させるための設定
+exit-code: 1
+# デフォルトは.trivyignoreだが、YAMLフォーマットで定義できるように変更
+ignorefile: .trivyignore.yaml
+
+# Scan Options #
+scan:
+  # terraform init実行時にダウンロードされるモジュールはスキャンしないようにする設定
+  # ref. https://aquasecurity.github.io/trivy/v0.51/docs/configuration/skipping/
+  skip-dirs:
+    - "**/.terraform"
+  # 基本的なスキャン機能をすべて使用
+  # ref. https://aquasecurity.github.io/trivy/v0.51/docs/scanner/vulnerability/
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+    - license
