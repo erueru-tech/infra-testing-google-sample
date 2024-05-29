@@ -1,0 +1,36 @@
+name: digger
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+permissions: {}
+
+jobs:
+  digger:
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: setup terraform and gcloud CLI
+        uses: ./.github/actions/setup
+        with:
+          workload_identity_provider: ${{ secrets.TEST_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.TEST_SERVICE_ACCOUNT }}
+
+      - name: digger run
+        uses: diggerhq/digger@vLatest
+        with:
+          mode: drift-detection
+          setup-aws: false
+          disable-locking: true
+          drift-detection-slack-notification-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

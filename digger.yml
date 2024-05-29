@@ -1,0 +1,5 @@
+projects:
+  - name: digger
+    dir: ./terraform
+    include_patterns:
+      ["./terraform/environments/test/**", "./terraform/modules_/**"]
