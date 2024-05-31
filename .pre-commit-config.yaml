@@ -67,6 +67,7 @@ repos:
   - repo: local
     hooks:
       # 脆弱性DBのアップデートなどが発生する場合、チェックに時間がかかるので必要に応じてCIに任せる
+      # ただしその場合でもsecretスキャンだけはローカルで行うべき
       - id: trivy
         name: run trivy
         entry: ./scripts/trivy.sh

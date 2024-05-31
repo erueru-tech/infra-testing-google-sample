@@ -3,7 +3,7 @@
 # - メンテナンス時間は火曜日 8:00—9:00(JST)
 module "sql_db" {
   source           = "GoogleCloudPlatform/sql-db/google//modules/mysql"
-  version          = "19.0.0"
+  version          = "20.1.0"
   project_id       = local.project_id
   region           = var.region
   zone             = var.zone
