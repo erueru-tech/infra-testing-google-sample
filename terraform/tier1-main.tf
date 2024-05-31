@@ -1,6 +1,6 @@
 module "project_services" {
   source     = "terraform-google-modules/project-factory/google//modules/project_services"
-  version    = "14.4.0"
+  version    = "15.0.1"
   project_id = local.project_id
   activate_apis = [
     "bigquery.googleapis.com",
