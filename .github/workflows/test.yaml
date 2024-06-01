@@ -115,7 +115,7 @@ jobs:
         run: |
           ./scripts/tflint.sh
 
-      # 既にインストール済みのTtrivyがキャッシュに存在する場合restore
+      # 既にインストール済みのTrivyがキャッシュに存在する場合restore
       - name: cache trivy CLI
         id: trivy-cache
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
