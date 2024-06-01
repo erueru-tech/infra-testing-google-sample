@@ -2,7 +2,7 @@
 
 自動テスト可能なインフラストラクチャの実装および運用を行うための Terraform プロジェクトのサンプルで、クラウドサービスは[Google Cloud](https://cloud.google.com/free/?utm_source=google&utm_medium=cpc&utm_campaign=japac-JP-all-ja-dr-BKWS-all-core-trial-EXA-dr-1605216&utm_content=text-ad-none-none-DEV_c-CRE_602341359562-ADGP_Hybrid+%7C+BKWS+-+EXA+%7C+Txt+~+GCP_General_core+brand_main-KWID_43700071566406795-kwd-6458750523&userloc_1009501-network_g&utm_term=KW_google+cloud&gad_source=1&gclid=CjwKCAiAloavBhBOEiwAbtAJO95rgNb1GPBj0MeixreE8ai1B6rNLDGW4UV8UtVtN5F1kLGx_KoYvRoCYfYQAvD_BwE&gclsrc=aw.ds&hl=ja)を使用しています。
 
-なお現時点では、プロトタイプ版未満の完成度であるため、コード利用の際は処理内容などを精査した上で利用してください。
+なお現時点でこのインフラプロジェクトはプロトタイプ版であるため、コード利用の際は処理内容などを精査した上で利用してください。
 
 ## 基本情報
 
