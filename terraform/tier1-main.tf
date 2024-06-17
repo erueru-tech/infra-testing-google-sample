@@ -7,6 +7,7 @@ module "project_services" {
     "bigquerymigration.googleapis.com",
     "bigquerystorage.googleapis.com",
     "cloudapis.googleapis.com",
+    "cloudasset.googleapis.com",
     "cloudbilling.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "cloudtrace.googleapis.com",

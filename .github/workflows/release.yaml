@@ -1,0 +1,47 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "release version"
+        required: true
+
+permissions: {}
+
+jobs:
+  main:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      # v6.0.0 ref. https://github.com/release-drafter/release-drafter/releases/tag/v6.0.0
+      - name: generate release note and create version tag
+        uses: release-drafter/release-drafter@3f0f87098bd6b5c5b9a36d49c41d998ea58f9348
+        with:
+          tag: v${{ inputs.release_version }}
+          version: v${{ inputs.release_version }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  slack:
+    if: always()
+    runs-on: ubuntu-22.04
+    needs: main
+    permissions:
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: send the workflow result to the slack channel
+        uses: ./.github/actions/slack
+        with:
+          conclusion: ${{ needs.main.result }}
+          channel_id: ${{ vars.SLACK_CHANNEL_ID }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
