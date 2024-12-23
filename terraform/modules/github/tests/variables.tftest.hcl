@@ -1,8 +1,34 @@
+# var.github_account_nameは必ず値を指定しなければいけない
+run "assert_github_account_name_1" {
+  command = plan
+  variables {
+    github_repo_name = "test-repo"
+    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
+  }
+  expect_failures = [
+    var.github_account_name,
+  ]
+}
+
+# var.github_repo_nameは必ず値を指定しなければいけない
+run "assert_github_repo_name_1" {
+  command = plan
+  variables {
+    github_account_name = "test-account"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
+  }
+  expect_failures = [
+    var.github_repo_name,
+  ]
+}
+
 # var.oidc_pool_idのデフォルト値は'sample-pool'である
 run "assert_oidc_pool_id_1" {
   command = plan
   variables {
-    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
   }
   assert {
     condition     = var.oidc_pool_id == "sample-pool"
@@ -14,7 +40,9 @@ run "assert_oidc_pool_id_1" {
 run "assert_random_oidc_pool_id_1" {
   command = plan
   variables {
-    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
   }
   assert {
     condition     = !var.random_oidc_pool_id
@@ -26,7 +54,9 @@ run "assert_random_oidc_pool_id_1" {
 run "assert_oidc_provider_id_1" {
   command = plan
   variables {
-    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
   }
   assert {
     condition     = var.oidc_provider_id == "sample-gh-provider"
@@ -38,7 +68,9 @@ run "assert_oidc_provider_id_1" {
 run "assert_sa_account_id_1" {
   command = plan
   variables {
-    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
   }
   assert {
     condition     = var.sa_account_id == "github"
@@ -50,8 +82,10 @@ run "assert_sa_account_id_1" {
 run "assert_sa_account_id_2" {
   command = plan
   variables {
-    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
-    sa_account_id    = "abcde"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
+    sa_account_id       = "abcde"
   }
   expect_failures = [
     var.sa_account_id,
@@ -62,8 +96,10 @@ run "assert_sa_account_id_2" {
 run "assert_sa_account_id_3" {
   command = plan
   variables {
-    terraform_bucket = "test-infra-testing-google-sample-test-terraform"
-    sa_account_id    = "abcde12345abcde12345abcde12345a"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "test-infra-testing-google-sample-test-terraform"
+    sa_account_id       = "abcde12345abcde12345abcde12345a"
   }
   expect_failures = [
     var.sa_account_id,
@@ -73,6 +109,10 @@ run "assert_sa_account_id_3" {
 # var.terraform_bucketは必ず値を指定しなければいけない
 run "assert_terraform_bucket_1" {
   command = plan
+  variables {
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+  }
   expect_failures = [
     var.terraform_bucket,
   ]
@@ -82,7 +122,9 @@ run "assert_terraform_bucket_1" {
 run "assert_terraform_bucket_2" {
   command = plan
   variables {
-    terraform_bucket = "gs://test-infra-testing-google-sample-test-terraform"
+    github_account_name = "test-account"
+    github_repo_name    = "test-repo"
+    terraform_bucket    = "gs://test-infra-testing-google-sample-test-terraform"
   }
   expect_failures = [
     var.terraform_bucket,

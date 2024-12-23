@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eu
 
 [[ -z ${CI:-} ]] && OPT="-w" || OPT="--fail --list"
-opa fmt --v1-compatible --rego-v1 $OPT policies/
+opa fmt $OPT policies/

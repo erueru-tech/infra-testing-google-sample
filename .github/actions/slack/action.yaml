@@ -5,9 +5,6 @@ inputs:
   conclusion:
     description: the outcome of the jobs (e.g. 'success', 'failure')
     required: true
-  channel_id:
-    description: Slack channel ID
-    required: true
   webhook_url:
     description: SLACK_WEBHOOK_URL
     required: true
@@ -17,40 +14,25 @@ runs:
   steps:
     - name: send workflow result to slack channel
       # slackapi/slack-github-actionはコミットハッシュによる指定ができないのでバージョンで固定
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v2.0.0
       with:
-        channel-id: ${{ inputs.channel_id }}
+        webhook-type: incoming-webhook
         payload: |
-          {
-            "attachments": [
-              {
-                "pretext": "",
-                "color": "${{ inputs.conclusion == 'success' && '36a64f' || 'f26268' }}",
-                "fields": [
-                  {
-                    "title": "Workflow",
-                    "short": true,
-                    "value": "${{ env.WORKFLOW }}"
-                  },
-                  {
-                    "title": "Action URL",
-                    "short": true,
-                    "value": "${{ env.ACTION_URL }}"
-                  },
-                  {
-                    "title": "Title",
-                    "short": true,
-                    "value": "${{ env.PR_TITLE }}"
-                  },
-                  {
-                    "title": "Pull Request URL",
-                    "short": true,
-                    "value": "${{ env.PR_URL }}"
-                  }
-                ]
-              }
-            ]
-          }
+          attachments:
+            - color: "${{ inputs.conclusion == 'success' && '36a64f' || 'f26268' }}"
+              fields:
+                - title: "Workflow"
+                  short: true
+                  value: "${{ env.WORKFLOW }}"
+                - title: "Action URL"
+                  short: true
+                  value: "${{ env.ACTION_URL }}"
+                - title: "Title"
+                  short: true
+                  value: "${{ env.PR_TITLE }}"
+                - title: "Pull Request URL"
+                  short: true
+                  value: "${{ env.PR_URL }}"
       env:
         # PRタイトルなどの任意入力可能な値は、シェルやTypeScript実行ステップで参照するとインジェクション攻撃に使用されるケースがある
         # これは環境変数を間に挟むことで無害化できる
@@ -62,4 +44,3 @@ runs:
         PR_TITLE: ${{ github.event.pull_request.title }}
         PR_URL: ${{ github.event.pull_request.html_url || github.event.head_commit.url }}
         SLACK_WEBHOOK_URL: ${{ inputs.webhook_url }}
-        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

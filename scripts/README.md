@@ -56,9 +56,11 @@ $ gcloud components install beta
 $ cd /path/to/infra-testing-google-sample
 $ vi scripts/_config.sh
 # 以下の設定を記述
-#!/bin/bash
+#!/usr/bin/env bash
 
 # 組織のID
+# ORGとORG_DOMAINの値は以下のコマンドで確認できる
+# $ gcloud organizations list
 readonly ORG="123456789012"
 # 組織のドメイン
 readonly ORG_DOMAIN="foo-bar-12345.com"

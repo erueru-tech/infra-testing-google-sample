@@ -15,14 +15,14 @@ permissions: {}
 jobs:
   apply:
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       id-token: write
       contents: read
       pull-requests: write
     steps:
       - name: checkout project
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: setup terraform and gcloud CLI
         uses: ./.github/actions/setup
@@ -40,17 +40,16 @@ jobs:
 
   slack:
     if: always() && github.event.pull_request.merged == true
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: apply
     permissions:
       contents: read
     steps:
       - name: checkout project
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: send the workflow result to the slack channel
         uses: ./.github/actions/slack
         with:
           conclusion: ${{ needs.apply.result }}
-          channel_id: ${{ vars.SLACK_CHANNEL_ID }}
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

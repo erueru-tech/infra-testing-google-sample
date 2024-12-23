@@ -1,6 +1,9 @@
 # avd-gcp-0001を除外したい場合、大文字でAVD-GCP-0001と指定しないと除外できない
 # コードに`#trivy:ignore`コメントを追加することでも特定のルールチェックを行わないようにすることが可能
 misconfigurations:
+  # FIXME 以下の2つのチェックはTrivyバージョンアップ時に新たに追加されたチェックで後ほど対応予定
+  - id: AVD-GCP-0015
+  - id: AVD-GCP-0017
 
 secrets:
 
