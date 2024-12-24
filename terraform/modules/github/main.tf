@@ -8,16 +8,18 @@ locals {
 # ref. https://cloud.google.com/iam/docs/manage-workload-identity-pools-providers?hl=ja#delete-provider
 module "gh_oidc" {
   source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
-  version     = "3.1.2"
+  version     = "4.0.0"
   project_id  = local.project_id
   pool_id     = var.random_oidc_pool_id ? "${var.oidc_pool_id}-${random_id.gen.hex}" : var.oidc_pool_id
   provider_id = var.oidc_provider_id
-  sa_mapping = {
-    (google_service_account.github.account_id) = {
-      sa_name   = google_service_account.github.name
-      attribute = "attribute.repository/${local.github_account_name}/${local.github_repo_name}"
-    }
+  attribute_mapping = {
+    "attribute.actor"      = "assertion.actor"
+    "attribute.repository" = "assertion.repository"
+    "attribute.aud"        = "assertion.aud"
+    "google.subject"       = "assertion.sub"
+    "attribute.email"      = "assertion.email"
   }
+  attribute_condition = "assertion.repository==\"${var.github_account_name}/${var.github_repo_name}\""
 }
 
 # 長さ6文字の16進数文字列が生成される
@@ -30,6 +32,13 @@ resource "google_service_account" "github" {
   account_id   = var.sa_account_id
   display_name = local.sa_github_display_name
   description  = local.sa_github_display_name
+}
+
+# Github ActionsからGoogle CloudのWorload Identity Providerプールに接続する際に必要なロール
+resource "google_service_account_iam_member" "github" {
+  service_account_id = google_service_account.github.name
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${module.gh_oidc.pool_name}/attribute.repository/${var.github_account_name}/${var.github_repo_name}"
 }
 
 # Github Actions実行用のサービスアカウントにownerロールを付与するのは危険ではあるが、厳密にロールを管理しようとすると

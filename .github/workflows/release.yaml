@@ -11,12 +11,12 @@ permissions: {}
 
 jobs:
   main:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - name: checkout project
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       # v6.0.0 ref. https://github.com/release-drafter/release-drafter/releases/tag/v6.0.0
       - name: generate a release note and a version tag
@@ -29,17 +29,16 @@ jobs:
 
   slack:
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: main
     permissions:
       contents: read
     steps:
       - name: checkout project
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: send the workflow result to the slack channel
         uses: ./.github/actions/slack
         with:
           conclusion: ${{ needs.main.result }}
-          channel_id: ${{ vars.SLACK_CHANNEL_ID }}
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

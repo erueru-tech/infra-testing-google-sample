@@ -108,14 +108,14 @@ $ ./apply_destroy.sh destroy
 このプロジェクトの開発では以下のツールを利用しています。
 
 - [tfenv](https://github.com/tfutils/tfenv?tab=readme-ov-file#installation) v3.0.0
-- [TFLint](https://github.com/terraform-linters/tflint?tab=readme-ov-file#installation) 0.50.3
-- [pre-commit](https://pre-commit.com/#install) v3.7.0
-- [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa) v0.64.1
-- [Regal](https://github.com/StyraInc/regal?tab=readme-ov-file#download-regal) v0.21.3
-- [Conftest](https://www.conftest.dev/install/) v0.51.0
+- [TFLint](https://github.com/terraform-linters/tflint?tab=readme-ov-file#installation) 0.54.0
+- [pre-commit](https://pre-commit.com/#install) v4.0.1
+- [OPA](https://www.openpolicyagent.org/docs/latest/#1-download-opa) v1.0.0
+- [Regal](https://github.com/StyraInc/regal?tab=readme-ov-file#download-regal) v0.29.2
+- [Conftest](https://www.conftest.dev/install/) v0.56.0
 - [Trivy](https://aquasecurity.github.io/trivy/latest/getting-started/installation/) v0.51.1
-- [jq](https://github.com/jqlang/jq?tab=readme-ov-file#installation) 1.6
-- [yq](https://github.com/mikefarah/yq?tab=readme-ov-file#install) 4.43.1
+- [jq](https://github.com/jqlang/jq?tab=readme-ov-file#installation) jq 1.7.1
+- [yq](https://github.com/mikefarah/yq?tab=readme-ov-file#install) v4.44.6
 
 各ツールのインストール手順は公式ドキュメントを参照してください。
 

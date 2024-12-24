@@ -1,3 +1,22 @@
+# Githubのアカウント名あるいは組織名(このプロジェクトでは"erueru-tech"になる)
+variable "github_account_name" {
+  type    = string
+  default = null
+  validation {
+    condition     = var.github_account_name != null
+    error_message = "The var.github_account_name value is required."
+  }
+}
+
+# Githubのリポジトリ名(このプロジェクトでは"infra-testing-google-sample"になる)
+variable "github_repo_name" {
+  type    = string
+  default = null
+  validation {
+    condition     = var.github_repo_name != null
+    error_message = "The var.github_repo_name value is required."
+  }
+}
 # Github Actions用Workload IdentityプールのID
 variable "oidc_pool_id" {
   type    = string
@@ -15,7 +34,6 @@ variable "oidc_provider_id" {
   type    = string
   default = "sample-gh-provider"
 }
-
 
 # Github Actionsのジョブ実行用サービスアカウント名
 variable "sa_account_id" {
